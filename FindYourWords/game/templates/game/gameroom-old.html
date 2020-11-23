@@ -1,0 +1,315 @@
+{% if room_code %}
+<head>
+	{%load static %}
+	<link href='https://fonts.googleapis.com/css?family=Chewy' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Zilla Slab' rel='stylesheet'>
+	<link rel="stylesheet" type="text/css" href="{% static "gameroom.css" %}">
+	<link href='https://fonts.googleapis.com/css?family=Chivo' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Mada' rel='stylesheet'>
+	<script type="text/javascript" src="{% static "gameroom.js" %}"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <!--- Shows in game room possibly have it dynamic based on the code? --->
+    <title>Game Room</title>
+</head>
+<body>
+    <!--- This will display the name of the user and chosen avatar--->
+    <div id = 'navbar'>
+        <div id = 'usersteam_outer' class = team>
+        	<div id="usersteam_inner">
+            {%if player_team == 1%}
+                <h3>Team Red</h3>
+                {% for player in team_1_players %}
+                    {% if player.1 == 0 %}
+                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 1 %}
+                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 2 %}
+                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 3 %}
+                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 4 %}
+                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 5 %}
+                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 6 %}
+                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 7 %}
+                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+                    {%endif%}      
+            
+                    <p>{{player.0}}</p>
+                {% endfor %}
+            {% else %}
+                <h3>Team Blue</h3>
+                {% for player in team_2_players %}
+                    {% if player.1 == 0 %}
+                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 1 %}
+                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 2 %}
+                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 3 %}
+                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 4 %}
+                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 5 %}
+                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 6 %}
+                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 7 %}
+                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+                    {%endif%}
+                    <p>{{player.0}}</p>
+                    {%endfor%}
+            {% endif %}
+            </div>
+        </div>
+        <div id = "info">
+  
+        <!--- User's Avatar --->
+            {%if avatar_num == 0%}
+                <img src ='{%static 'Images/codeyColor.png' %}' width = '125' height = '125'>
+        
+            {%elif avatar_num == 1%}
+                <img src ='{%static 'Images/franColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 2%}
+                <img src ='{%static 'Images/robertColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 3%}
+                <img src ='{%static 'Images/oscarColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 4%}
+                <img src ='{%static 'Images/azraColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 5%}
+                <img src ='{%static 'Images/jackieColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 6%}
+                <img src ='{%static 'Images/lukeColor.png' %}' width = '125' height = '125'>
+            {%elif avatar_num == 7%}
+                <img src ='{%static 'Images/yonatanColor.png' %}' width = '125' height = '125'>
+            {%endif%}
+
+        <!--- Room code is shown --->
+	       <div id="gameCode">
+		      <p>Your room code is {{ room_code }}</p>
+	       </div>
+        <!--- User's Team and team mates --->
+            <div id = 'userinfo'>
+        <!--- User's Name --->
+                    
+                    <p>Welcome{%if is_captain %} Captain{% endif %} {{players_name}}!</p>
+                </div>
+            </div> 
+        <div id = 'opponents_outer' class = team>
+        	<div id="opponents_inner">
+            {%if player_team == 1%}
+                <h3>Team Blue</h3>
+                {% for player in team_2_players %}
+                    {% if player.1 == 0 %}
+                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 1 %}
+                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 2 %}
+                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 3 %}
+                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 4 %}
+                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 5 %}
+                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 6 %}
+                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 7 %}
+                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+                    {%endif%}      
+            
+                    <p>{{player.0}}</p>
+                {% endfor %}
+            {% else %}
+                <h3>Team Red</h3>
+                {% for player in team_1_players %}
+                    {% if player.1 == 0 %}
+                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 1 %}
+                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 2 %}
+                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 3 %}
+                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 4 %}
+                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 5 %}
+                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 6 %}
+                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+                    {% elif player.1 == 7 %}
+                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+                    {%endif%}
+                    <p>{{player.0}}</p>
+                    {%endfor%}
+            {% endif %}
+        </div>
+    </div>
+
+	
+	{% endif %}
+	{% if all_rows %}
+    <!--- Displays Game Board --->
+	<div id="gameBoard">
+	    <table id="gameTable">
+	        {% for row in all_rows %}
+	            <tr>
+	                {% for bp in row %}
+                        {% if is_captain %}
+                            {% if bp.revealed %}
+                                <td>
+                                    <button disabled class = 'board_buttons team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <button disabled class = 'board_buttons team{{bp.team}}unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+                                </td>
+                            {% endif %}
+                        {% else %}
+                            {% if bp.revealed %}
+                                <td>
+                                    <button class = 'board_buttons team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <button class = 'board_buttons unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+                                </td>
+                            {% endif %}
+                        {% endif %}
+                        
+	                {% endfor %}
+	            <tr>
+	        {% endfor %}
+	    </table>
+	</div>
+    
+    <!--- Chat area  --->
+    <div id = "chat_section">
+        
+    </div>
+    
+</body>
+
+{% endif %}
+<script>
+    //This is where we will handle information sent to and from back end.
+    
+    //get the room code
+    var room_code = "{{room_code}}";
+    
+    //make a new websocket on the server at ~/ws/room/ROOM_CODE/
+    var roomSocket = new WebSocket("ws://" + window.location.host + "/ws/room/" + room_code + "/");
+
+    var userTeam = {{player_team }}
+
+    //handle events from the websocket
+    
+    //we get information that a button was clicked
+    roomSocket.onselect = function(e) {
+        var data = JSON.parse(e.data);
+        
+    }
+    
+    roomSocket.onclose = function(e) {
+        console.error('Socket closed');
+    }
+    
+    
+    //This is where we get data form the server.
+    roomSocket.onmessage = function(e) {
+        //location.reload(true);
+        data = JSON.parse(e.data);
+        console.log(e.data)
+        if (data["message_type"] == "button_press") {
+            //get the right button using getElementByID with the 'x' and 'y' sent in data
+            button = document.getElementById("button_x" + data["x"] + "y" + data["y"]);
+            
+            //find in the classes the index of the class "team(whatever)unrevealed
+            classes = button.className.split(" ");
+            
+            classIndex = classes.indexOf("team" + data["team"] + "unrevealed");
+            
+            if (classIndex != -1) {
+                //replace that class with team(whatever)revealed
+                classes[classIndex] = "team" + data["team"] + "revealed";
+            } else {
+                //classIndex is -1, meaning that class is not on the element. if this is a player computer, that is expected.
+                //we instead just look for "unrevealed.
+                classIndex = classes.indexOf("unrevealed");
+                if (classIndex != -1) {
+                    classes[classIndex] = "team" + data["team"] + "revealed";
+                }
+            }
+            button.className = classes.join(" ");
+        } else if (data["message_type"] == "player" && data['name'] != "{{players_name}}") {
+            var correctDiv = "";
+            
+            //check to see if the new player is on the same team as this player. if so we'll add them to this player's side; otherwise add them to the other side
+            if (data["team"] == userTeam) {
+                correctDiv = "usersteam_inner";
+            } else {
+                correctDiv = "opponents_inner";
+            }
+            
+            //create image tag with the right image
+            var imageTag = document.createElement("img");
+            switch(data["avatar"]){
+                case 0:
+                    imageTag.src = '{%static 'Images/codeyColor.png' %}';
+                    break;
+                case 1:
+                    imageTag.src = '{%static 'Images/franColor.png' %}';
+                    break;
+                case 2:
+                    imageTag.src = '{%static 'Images/robertColor.png' %}';
+                    break;
+                case 3:
+                    imageTag.src = '{%static 'Images/oscarColor.png' %}';
+                    break;
+                case 4:
+                    imageTag.src = '{%static 'Images/azraColor.png' %}';
+                    break;
+                case 5:
+                    imageTag.src = '{%static 'Images/jackieColor.png' %}';
+                    break;
+                case 6:
+                    imageTag.src = '{%static 'Images/lukeColor.png' %}';
+                    break;
+                case 7:
+                    imageTag.src = '{%static 'Images/yonatanColor.png' %}';
+                    break;
+                
+            }
+            imageTag.height = '50';
+            imageTag.width = '50';
+            
+            var playerName = document.createElement("p");
+            var playerText = document.createTextNode(data["name"]);
+            playerName.appendChild(playerText);
+            document.getElementById(correctDiv).appendChild(imageTag);
+            document.getElementById(correctDiv).appendChild(playerName);
+            
+        }
+        
+        
+        //alert(alert_text)
+    }
+    
+    function wordselected(x,y) {
+        //this function will get called when a button gets clicked.
+        //we send a json object with the x and y coordinates of the selected button.
+        roomSocket.send(JSON.stringify({'type': 'button', 'x': x, 'y': y}));
+    }
+
+    roomSocket.onopen = function() {
+        //this function will happen as soon as the page loads. It sends info to the backend that a new player has joined, the backend sends back to everyone the data about the new player.
+        roomSocket.send(JSON.stringify({'type': 'player', 'pk': '{{ pk }}'}))
+    }
+</script>
+
+<footer>
+
+</footer>

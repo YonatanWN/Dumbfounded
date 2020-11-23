@@ -1,0 +1,80 @@
+body{
+	/*Center the Game Code Area*/
+	text-align: center;
+}
+
+#logo{
+	/*Fix the size of the logo*/
+	margin-top: 50px;
+	height: 193px;
+	width: 320px;
+}
+#avatar0:hover{
+	background-image: url('../../static/Images/codeyColor.png"');
+}
+#name{
+	/*Fix the placement of the name input*/
+    margin-top: 18px;
+	margin-bottom: 16px;
+}
+.gamepintxt{
+	/*Fix the size, placement, and formatting of the game pin textbox input*/
+	height: 55px;
+	width: 275px;
+	font-size: 16px;
+	margin: auto; 
+}
+#gamepintxt{
+	/*Fix the placement of the game pin input*/
+	margin-bottom: 15px;
+}
+#gamepintxtdiv{
+	/*Hide the "Join Game" buttons and input*/
+	display: none;
+}
+.button{
+	/*Format all of the buttons to make them uniform*/
+	border: none;
+	color: white;
+	height: 55px;
+	width: 275px;
+	font-size: 16px;
+	margin-bottom: 18px;
+	margin: auto;
+}
+#joinButton{
+	background-color: #39a87f; /* Green */
+}
+
+#creationButton{
+	background-color: #66c7f4; /* Blue */
+}
+#backgamepin{
+	background-color: #66c7f4; /* Blue */
+}
+#creationButton:hover,#backgamepin:hover{
+	cursor: pointer;
+	background-color:  	 #58c2f3; /* lighter blue */
+	color: white;
+}
+#gamepinButton{
+	background-color: #39a87f;
+}
+#joinButton:hover,#gamepinButton:hover{
+	background-color:   #349873; /* ligher green */
+	cursor: pointer;
+	color: white;
+}
+/* Hide radio buttons */
+.avatar {
+    position: absolute;
+    opacity:0;
+    width:0;
+    height: 0; 
+    margin-bottom:18px;
+}
+.avatar label > input[type=radio]:hover{
+    visibility: hidden; 
+    position:absolute;
+}
+

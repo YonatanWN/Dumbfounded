@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang ="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {%load static %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+     <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+     <script>
+         
+       $(document).ready(function(){
+           var joinclicked = false;
+           var back = false;
+        $(".avatar-img").click( 
+            function(){
+            $(".avatar-img").addClass("avatar-bw");    
+            $(this).toggleClass("avatar-bw");
+            });
+        $("#joinGame-bttn").click(
+            function(){
+            if (joinclicked == true){
+                $(this).removeAttr("type").attr("type","submit")
+            }    
+                
+            else{
+            $(".gamepin-txt").removeClass("hidden");
+            $("#createGame-bttn").html("Back");
+            $("#createGame-bttn").removeAttr("type").attr("type","button")
+            $("#joinGame-bttn").html("Enter");
+            joinclicked =  true;
+            back = true;
+            }
+            });
+        
+           $("#createGame-bttn").click(
+            function(){
+            if (back == true){
+                $(".gamepin-txt").toggleClass("hidden");
+                $("#joinGame-bttn").html("Join Game");
+                $("#joinGame-bttn").removeAttr("type").attr("type","button")
+                joinclicked = false;
+                $("#createGame-bttn").html("Create Game");
+                back = false;
+            }    
+                
+            else{
+                $(this).removeAttr("type").attr("type","submit")
+            }
+            });
+    });
+         
+         
+         
+           // This script is to set variables that were sent back in case of a missing field.
+    window.addEventListener('load', function() {
+        
+        {% if gamepintxt %}
+        //game code is set. We run joingame to make the game pin visible and set it's value to gamepintxt (or to blank if the game code was invalid)
+        joinGame();
+            {% if gamepintxt != "XXXXX" %}
+                document.getElementById("gamepintxt").value = "{{ gamepintxt }}";
+            {% else %}
+                document.getElementById("gamepintxt").value = "";
+            {% endif %}
+        {% endif %}
+        
+        {% if player_name %}
+            //player_name is set. Set value of player name to our player_name
+            document.getElementById("player_name").value ="{{ player_name }}"
+        {% endif %}
+        
+        {% if avatar %}
+        //avatar is set. "click" correct avatar
+        switch (parseInt({{ avatar }})) {
+            case 0:
+                $("#avatar0").click();
+                break;
+            case 1:
+                 $("#avatar1").click();
+                break;
+            case 2:
+                $("#avatar2").click();
+                break;
+            case 3:
+                $("#avatar3").click();
+                break;
+        }
+        {% endif %}
+    })
+      
+         
+         
+         
+         
+         
+         
+         
+    </script>
+    
+    
+    <style>
+        html {
+            position: relative;
+            min-height: 100%
+        }
+        .input-hidden{
+            display: none;
+            
+        }
+        
+
+        .avatar-img{
+            border:3px solid #F00;
+            background-color: #66c7f4;
+            width: 125px;
+            height: 125px;
+            float:left;
+            margin-right:5px;
+            margin-top:5px;
+            
+            
+        }
+        .btn{
+            border: 1px solid blue;
+            height: 55px;
+	        width: 275px;
+            font-size: 16px;
+            
+        }
+        #joinGame-bttn{
+            background-color: #39a87f; /* Green */
+            color:white;
+        }
+        #joinGame-bttn:hover{
+            background-color:   #349873;
+        }
+        #createGame-bttn{
+            background-color: #66c7f4;
+            color: white;
+        }
+        #createGame-bttn:hover{
+            background-color:  	 #58c2f3;
+        }
+        .avatar-img img{
+            transition: transform .2s;
+            cursor: pointer;
+        }
+        .avatar-img img:hover{
+            transform: scale(1.05);
+        }
+        .avatar-bw{
+            filter:grayscale(100%);
+        }
+        .input-hidden{
+            opacity: 0;
+        }
+        .row{
+            border:1px solid black;
+            margin: 1%;
+        }
+        .container{
+            border:1px solid green;
+        }
+        .hidden{
+            visibility: hidden;
+            height:0px;
+            
+        }
+        .hidden{
+            visibility: hidden;
+        }
+        #Logo{
+            margin-top: 20px;
+            height:193px;
+            width:320px;
+            border: 1px solid red;
+        }
+        body{
+            margin-bottom:60px;
+        }
+        .footer{
+            position: absolute;
+            bottom:0;
+            height:60px;
+            width:100%
+            
+        }
+    </style>
+   
+    <title>Play DumbFounded!</title>
+</head>
+    
+<body>
+    {% if error_messages %}
+    {% for error_message in error_messages %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endfor %}
+    {% endif %}
+    <form action="{% url 'game:make_or_join' %}" method="post" id = "makejoin">
+    {% csrf_token %}
+    <!--- DumbFounded Logo --->
+    <div class = "container">
+        <div class = "row justify-content-center">
+            <img src="{%static "Images/dumbfoundedlogo.png" %}" class = "img-fluid" id = "Logo" alt="Logo">
+            
+        </div>
+    </div>
+    
+    
+    
+    <!--- Avatar Images and Radio Buttons --->
+    <div class ='container'>
+       
+       
+        <div class ="row justify-content-center">
+            
+        
+                <input type="radio" id ="avatar0" class="input-hidden" autocomplete="off" name ="avatarradios"/>
+                <label for="avatar0">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/codeyColor.png" %}" class = "img-fluid" id = "avatar0pic" alt="Cody" >
+                    </div>
+                     
+                </label>
+            
+            
+                
+            
+        
+        
+                <input type="radio" id ="avatar1" class="input-hidden" autocomplete="off" name ="avatarradios"/>
+                <label for="avatar1">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/franColor.png" %}" class = "img-fluid" id = "avatar1pic" alt="Fran">
+                    </div>
+                     
+                </label>
+            
+            <div class="w-100 d-md-none"></div>
+        
+               
+                <input type="radio" id ="avatar2" class="input-hidden" autocomplete="off" name ="avatarradios"/>
+                <label for="avatar2">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/robertColor.png" %}" class = "img-fluid" id = "avatar2pic" alt="ROBErt">
+                    </div>
+                     
+                </label>
+           
+            
+        
+             
+                <input type="radio" id ="avatar3" class="input-hidden" autocomplete="off" name ="avatarradios"/>
+                <label for="avatar3">
+                    <div class ="avatar-img avatar-bw" >
+                        <img src="{%static "Images/oscarColor.png" %}" class = "img-fluid" id = "avatar3" alt="Oscar">
+                    </div>
+                     
+                </label>
+            
+            
+            </div>
+           
+    </div>
+        
+    <!--- Inputs and Buttons --->
+    <div class = "container">
+        <div class = "row justify-content-center">
+            <div class="form-group">
+                <input type="text" class = "form-control" placeholder="Player Name" id="player_name" />
+            </div>
+            
+        </div>
+        
+        <div class = "gamepin-txt hidden">
+        <div class = "row justify-content-center">
+            <div class="form-group">
+                <input type="text" class = "form-control " placeholder="Game Pin" id= "gamepintxt" onkeyup="this.value = this.value.toUpperCase();"/>
+            </div>
+        </div>
+        </div>
+        
+        
+        
+        <div class = "row justify-content-center" id = "creatediv">
+            <button type="submit" id = "createGame-bttn" class="btn">Create Game</button>
+        </div>
+            
+        <div class = "row justify-content-center" id = "joindiv">
+            <button type="button" id = "joinGame-bttn" class="btn">Join Game</button>
+        </div>
+        
+        
+    </div>  
+        
+    
+    </form>    
+        
+        
+        
+        
+        
+        
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <footer class="footer">
+        <div class = "container">
+            <div class = "row justify-content-center">
+                 <p class="text-muted">Copyright US</p>
+            </div>
+           
+        
+        </div>
+    
+        
+    </footer>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</body>
+</html>

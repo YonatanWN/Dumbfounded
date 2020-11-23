@@ -1,0 +1,154 @@
+html{
+	overflow: hidden;
+	height: 100%;
+}
+body{
+	height: 100%;
+	overflow: auto;
+}
+h3{
+	font-family: 'Chewy';
+	font-size: 24px;
+}
+p{
+	font-family: 'Zilla Slab';
+	font-size: 18px;
+}
+#navbar{
+	text-align: center;
+	width: 100%;
+}
+#usersteam_outer{
+	float: left;
+	width: 32%;
+	text-align: left;
+	top: 0;
+	height: 100%;
+}
+#usersteam_inner{
+	float: left;
+	width: 50%;
+	height: 100%;
+	text-align: left;
+	/*background-color: lightblue;*/
+	padding-left: 2%;
+	margin: 0%;
+
+}
+#info{
+	float: left;
+	width: 32%;
+	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 15px;
+	position: fixed;
+	top: 0;
+	left: 34%;
+	right: 34%;
+	/*background-color: lightgrey;*/
+}
+#opponents_outer{
+	float: right;
+	width: 32%;
+	height: 100%;
+	text-align: right;
+}
+#opponents_inner{
+	float: right;
+	text-align: right;
+	padding-right: 2%;
+	/*background-color: pink;*/
+	width: 50%;
+	height: 100%;
+	margin: 0;
+}
+/* fixed table with seperate borders */
+table{
+	border-collapse:separate; 
+	border-spacing: 8px 3px;
+	table-layout: fixed;
+	position: fixed;
+	margin-top: 220px;
+	margin-bottom: 50px;
+	left: 10%;
+	right: 10%;
+	top: 0;
+
+}
+/* Fixed height and font for the words */
+td{
+	height: 100px;
+	font-size: 20px;
+}
+#gameCode{
+	text-align: center;
+}
+#gameBoard{
+	width: 98%;
+    margin:1%;
+
+}
+#gameTable{
+	text-align: center;
+	margin-left:auto; 
+    margin-right:auto;
+    width: 750px;
+}
+/* Format for the Words */
+.board_buttons{
+	background-color: #ffd24d;
+	font-size: 18px;
+	height: 100%;
+	width: 100%;
+	border: 1.5px  #262626 solid;
+	font-size: 18px;
+	margin: auto;
+	border-radius: 15px;
+	color: #262626;
+	font-family: 'Mada';
+}
+/* Color changes when hovered */
+.board_buttons, &:not(team1unrevealed,team2unrevealed):hover{
+	cursor: pointer;
+	background-color: #ffbf00;
+	color: white;
+}
+
+#nav_bar{
+	text-align: center;
+}
+
+
+/* Color changes when clicked */
+.unrevealed{
+	background-color: #ffd24d;
+	color: #262626;
+}
+
+.team0revealed{
+	background-color: #ffbf00;
+	color: white;
+}
+.team1revealed{
+	background-color: #66c7f4;
+	color: white;
+}
+.team2revealed{
+	background-color: #e00644;
+	color: white;
+}
+.team1unrevealed{
+	background-color: #58c2f3;
+	color: #262626;
+}
+.team2unrevealed{
+	background-color: #f9064b;
+	color: #262626;
+}
+.team-1revealed{
+	background-color: black;
+	color: white;
+}
+.team-1unrevealed{
+	background-color: grey;
+	color: #262626;
+}

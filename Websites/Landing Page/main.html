@@ -1,0 +1,71 @@
+<head>
+    <title>DumbFounded_Landing_Page</title>
+    <!--- Dumb Founded Logo --->
+    <img src =''>
+    
+    <!--- Possible Navigation Bar --->
+    
+    <!--- User Account in top right possibly --->
+
+    <!--link to CSS page --->
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <!--link to JS page --->
+    <script type="text/javascript" src="main.js"></script>
+    
+</head>
+    
+
+<body>
+    <!--- Insert Area For Game Code --->
+    <div id='insert-block' class = 'gamecreation'>
+        <!--- Dumb Founded in Text or use Logo --->
+        <img src =''>
+        <!--- Avatar Select Buttons --->
+        <div id = 'avatars'>
+            <!--- Avatar 0 --->
+            <input type="image" src="#" alt="button" width="48" height="48">
+            <!--- Avatar 1  --->
+            <input type="image" src="#" alt="button" width="48" height="48">
+            <!--- Avatar 2 --->
+            <input type="image" src="#" alt="button" width="48" height="48">
+            <!--- Avatar 3 --->
+            <input type="image" src="#" alt="button" width="48" height="48">
+        </div>
+        <!--- Join Game Text and Buttons--->
+        <div id = 'name'>
+            <!--- Name Text Box --->
+            <input type = "text" class = "gamepintxt" placeholder = "Name" />
+        </div>
+        
+        <!--- Join Code Insert--->
+        <div id = 'gamepintxtdiv'>
+            <input type = "text" class = "gamepintxt" placeholder = "Game Pin" />
+            <br>
+            <button type = 'button' id="gamepinButton" class="enterbutton" onclick="#">Enter</button>
+        </div>
+        
+        
+        <!--- Join game button --->
+        <div id = 'joingamebttn'>
+         <button type = 'submit' id="joinButton" class="button" onclick="joinGame()">Join Game</button>
+        </div> 
+        
+        <!---Display Code Generated--->
+        <div id="codeDisplay" >
+            <input type="text" id="codeTxtBox" value="######" readonly/>
+        </div>
+        
+         <!--- Create Game Button --->
+        <div id='create-game' class = 'gamecreation'>
+            <button type = 'button' id="creationButton" class="button" onclick="createGame()">Create Game</button>
+        </div>
+        
+    </div>
+    
+   
+</body>
+
+<footer>
+    
+</footer>

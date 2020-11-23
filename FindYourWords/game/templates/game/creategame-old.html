@@ -1,0 +1,145 @@
+
+<head>
+    <title>DumbFounded Landing Page</title>
+    <!--- Dumb Founded Logo --->
+    <img src =''>
+    
+    <!--- Possible Navigation Bar --->
+    
+    <!--- User Account in top right possibly --->
+    
+    {%load static %}
+    <!--link to CSS page --->
+    <link rel="stylesheet" type="text/css" href="{% static "creategame.css" %}">
+
+    <!--link to JS page --->
+    <script type="text/javascript" src="{% static "creategame.js" %}"></script>
+    
+</head>
+    
+
+<body>
+    {% if error_messages %}
+    {% for error_message in error_messages %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endfor %}
+    {% endif %}
+    <form action="{% url 'game:make_or_join' %}" method="post" id="makejoin">
+    {% csrf_token %}
+        <!--- Dumb Founded in Text or use Logo --->
+        <input type="hidden" id="mode" name="mode" value="make"/>
+        <div id="logoDiv">
+            <img src="{%static "Images/dumbfoundedlogo.png" %}" id="logo">
+        </div>
+        <!--- Avatar Select Buttons --->
+
+        <div id = 'avatars'>
+            <!--- Avatar 0 --->
+            <input type = 'radio' id ='avatar0' class = 'avatar' name = 'avatar'  value= '0'/>
+            <label for='avatar0'>
+                <img id='av0' src = '{%static "Images/codeyUnfilled.png" %}' width = '125' height = '125' onclick="avatarZero()">
+            </label>
+            <!--- <input type="radio" src="{%static "Images/codeyUnfilled.png" %}" alt="button" width="125" height="125" class="avatar" onmouseover="this.src='{%static 'Images/codeyColor.png' %}';" onmouseout="this.src='{%static "Images/codeyUnfilled.png" %}';" > --->
+            
+            
+            <!--- Avatar 1  --->
+            <input type = 'radio' id ='avatar1' class = 'avatar' name = 'avatar' value='1'/>
+            <label for='avatar1'>
+                <img id="av1" src = '{%static "Images/franUnfilled.png" %}'width = '125' height = '125'  onclick="avatarOne()" >
+            </label>
+           <!--- <input type="radio" src="{%static "Images/franUnfilled.png" %}" alt="button" width="125" height="125" class="avatar" onmouseover="this.src='{%static 'Images/franColor.png' %}';" onmouseout="this.src='{%static "Images/franUnfilled.png" %}';"> --->
+            <!--- Avatar 2 --->
+            <input type = 'radio' id ='avatar2' class = 'avatar' name = 'avatar' value='2'/>
+            <label for='avatar2'>
+                <img id='av2' src = '{%static "Images/robertUnfilled.png" %}' width = '125' height = '125' onclick="avatarTwo()">
+            </label>
+           <!--- <input type="radio" src="{%static "Images/robertUnfilled.png" %}" alt="button" width="125" height="125" class="avatar" onmouseover="this.src='{%static 'Images/robertColor.png' %}';" onmouseout="this.src='{%static "Images/robertUnfilled.png" %}';"> --->
+            <!--- Avatar 3 --->
+            <input type = 'radio' id ='avatar3' class = 'avatar' name = 'avatar' value='3'/>
+            <label for='avatar3'>
+                <img id='av3' src = '{%static "Images/oscarUnfilled.png" %}' width = '125' height = '125'  onclick="avatarThree()"
+            </label>
+           <!--- <input type="radio" src="{%static "Images/oscarUnfilled.png" %}" alt="button" width="125" height="125" class="avatar" onmouseover="this.src='{%static 'Images/oscarColor.png' %}';" onmouseout="this.src='{%static "Images/oscarUnfilled.png" %}';"> --->
+        
+            
+            
+        </div>
+        
+        <!--- Join Game Text and Buttons--->
+        <div id = 'name'>
+            <!--- Name Text Box --->
+            <input type="text" name="player_name" id="player_name" placeholder="Player Name" class = "gamepintxt" maxlength = '15'>
+        </div>
+         <!--- Create Game Button --->
+        <div id='create-game' class = 'gamecreation'>
+             <input type="submit" value="Create" id="creationButton" class="button">
+        
+           <!--- <button type = 'button' id="creationButton" class="button" onclick="createGame()">Create Game</button> --->
+        </div>
+        
+        </form>
+        
+        <!--- Join Code Insert--->
+        <div id = 'gamepintxtdiv'>
+            <input type="text" name="gamepintxt" id="gamepintxt" placeholder="Gamepin" class = "gamepintxt" form="makejoin" onKeyUp="cap()" maxlength='4'>
+            <br>
+            <button type = "button" id='backgamepin' class = "button" onclick="backGame()">Back</button>
+            <br>
+            <br>
+            <button type = 'submit' id="gamepinButton" class="button" form="makejoin">Enter</button>
+        </div>
+
+        </div>
+        <!--- Join game button --->
+        <div id = 'joingamebttn'>
+         <button type = 'submit' id="joinButton" class="button" onclick="joinGame()">Join Game</button>
+        </div> 
+
+    
+    
+   
+</body>
+<script>
+    // This script is to set variables that were sent back in case of a missing field.
+    window.addEventListener('load', function() {
+        
+        {% if gamepintxt %}
+        //game code is set. We run joingame to make the game pin visible and set it's value to gamepintxt (or to blank if the game code was invalid)
+        joinGame();
+            {% if gamepintxt != "XXXXX" %}
+                document.getElementById("gamepintxt").value = "{{ gamepintxt }}";
+            {% else %}
+                document.getElementById("gamepintxt").value = "";
+            {% endif %}
+        {% endif %}
+        
+        {% if player_name %}
+            //player_name is set. Set value of player name to our player_name
+            document.getElementById("player_name").value ="{{ player_name }}"
+        {% endif %}
+        
+        {% if avatar %}
+        //avatar is set. "click" correct avatar
+        switch (parseInt({{ avatar }})) {
+            case 0:
+                avatarZero();
+                break;
+            case 1:
+                avatarOne();
+                break;
+            case 2:
+                avatarTwo();
+                break;
+            case 3:
+                avatarThree();
+                break;
+        }
+        {% endif %}
+    })
+    
+    
+</script>
+
+<footer>
+    
+</footer>

@@ -1,0 +1,1244 @@
+<!--
+    Name: gameroom.html
+    Purpose: Displays the board the board and is location where player actually plays.
+    Version: Added more JS descriptions, June 9, 2020
+    Authors:  Jackie Guan,Yonatan Wiese-Namir,Luke Patton
+    Dependecies: Bootstrap 4, Bootstrap JS, Popper.js, JQuery, Django, JS Date, GoogleFont: Chewy Oswald Zilla Slab Mada
+--->
+    
+{% if room_code %}
+<html>
+<head>
+
+    
+
+
+    
+    
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {%load static %}
+    <!-- Bootstrap CSS -->  
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+     <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<link href='https://fonts.googleapis.com/css?family=Chewy' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Zilla Slab' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Chivo' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Mada' rel='stylesheet'>
+
+    <!--- Shows in game room-->
+    <title>Game Room {{ room_code }}</title>
+    <link rel="shortcut icon" href="{%static "Images/exclamationFavIcon.png" %}" />
+	<script>
+        var gameIsOver = false;
+        var timerstarttime;
+        var timelimit = 180;
+        var alerted = false;
+        //Show the Tutorial popup
+        $(document).ready(function(){
+		$("#tutorialpopup").modal('show');
+		
+		//Activate team turn to work on the function when the team class switches
+        $(".teamturn-img").click( 
+            function(){
+            $(".teamturn-img").addClass("teamturn-bw");    
+            $(this).toggleClass("teamturn-bw");
+            });        
+            
+            
+	   });
+        
+        // Updates the team indicator to mark whose turn it is
+        function updateTeamTurn() {
+            if (currentTurn == 1) {
+                var allteam1 = document.getElementsByClassName("teamturn-img1");
+                for (i = 0; i < allteam1.length; i++) {
+                    allteam1[i].classList.remove("teamturn-bw");
+                }
+                var allteam2 = document.getElementsByClassName("teamturn-img2");
+                for (i = 0; i < allteam2.length; i++) {
+                    allteam2[i].classList.add("teamturn-bw");
+                }
+            } else {
+                var allteam1 = document.getElementsByClassName("teamturn-img1");
+                for (i = 0; i < allteam1.length; i++) {
+                    allteam1[i].classList.add("teamturn-bw");
+                }
+                var allteam2 = document.getElementsByClassName("teamturn-img2");
+                for (i = 0; i < allteam2.length; i++) {
+                    allteam2[i].classList.remove("teamturn-bw");
+                }
+            }
+        }
+        
+        //
+        //Utilizes JS Date API
+        //Calculates time difference from when timer was created and the current time
+        //Uses variable timestarttime passed from Django , timelimit (Desired time limit the team has to guess)
+        //Creates variables d(Date),secondsdifference(Difference between current time and creation time), currenttime (time team has left), timemin, and timesec
+        //prints time in min and sec
+        function showTimer(){
+            //gets current time
+            if (timerstarttime != 0) {
+                alerted = false;
+                var d = new Date();
+                //current time in seconds - the current starttime in seconds
+                var secondsdifference = Math.round(d.getTime()/1000) - timerstarttime;
+                if (secondsdifference >= 180) {
+                    document.getElementById("timesec").innerHTML = "";
+                    document.getElementById("timesecsmall").innerHTML = "";
+                    document.getElementById("timemin").innerHTML = "";
+                    document.getElementById("timeminsmall").innerHTML = "";
+                    if (!alerted) {
+                        alerted = true;
+                        roomSocket.send(JSON.stringify({'type': 'timer'}));
+                    }
+                    return
+                }
+                var currenttime = timelimit-secondsdifference;
+
+                var timemin = Math.floor(currenttime/60);
+                var timesec = currenttime % 60;
+
+                //Displays minutes and seconds on small and large screens
+                document.getElementById("timemin").innerHTML = timemin.toString();
+                document.getElementById("timeminsmall").innerHTML = timemin.toString();
+                //Displays specific format 0X for any X under 10
+                if (timesec < 10 ){
+                    if (timesec == 0 ){
+                         document.getElementById("timesec").innerHTML = "00";
+                        document.getElementById("timesecsmall").innerHTML = "00";
+                    }
+                    else if(timesec == 1){
+                           document.getElementById("timesec").innerHTML = "01"; 
+                        document.getElementById("timesecsmall").innerHTML = "01";
+                    }
+                    else if(timesec == 2){
+                           document.getElementById("timesec").innerHTML = "02"; 
+                        document.getElementById("timesecsmall").innerHTML = "02";
+                    }
+                    else if(timesec == 3){
+                           document.getElementById("timesec").innerHTML = "03"; 
+                        document.getElementById("timesecsmall").innerHTML = "03";
+                    }
+                    else if(timesec == 4){
+                           document.getElementById("timesec").innerHTML = "04"; 
+                        document.getElementById("timesecsmall").innerHTML = "04";
+                    }
+                    else if(timesec == 5){
+                           document.getElementById("timesec").innerHTML = "05"; 
+                        document.getElementById("timesecsmall").innerHTML = "05";
+                    }
+                    else if(timesec == 6){
+                           document.getElementById("timesec").innerHTML = "06"; 
+                        document.getElementById("timesecsmall").innerHTML = "06";
+                    }
+                    else if(timesec == 7){
+                           document.getElementById("timesec").innerHTML = "07";
+                        document.getElementById("timesecsmall").innerHTML = "07";
+                    }
+                    else if(timesec == 8){
+                           document.getElementById("timesec").innerHTML = "08"; 
+                        document.getElementById("timesecsmall").innerHTML = "08";
+                    }
+                    else if(timesec == 9){
+                           document.getElementById("timesec").innerHTML = "09"; 
+                        document.getElementById("timesecsmall").innerHTML = "09";
+                    }
+                }
+                else{
+                     document.getElementById("timesec").innerHTML = timesec.toString();
+                    document.getElementById("timesecsmall").innerHTML = timesec.toString();
+                }
+                return
+            }
+            
+            document.getElementById("timesec").innerHTML = "";
+            document.getElementById("timesecsmall").innerHTML = "";
+            document.getElementById("timemin").innerHTML = "";
+            document.getElementById("timeminsmall").innerHTML = "";
+            
+            
+           
+        }
+        
+        
+        //Starts the timer
+        //Calls the showTimer function every 1000ms
+        function startTimer(){
+            setInterval(showTimer,1000);
+        }
+        
+        
+        
+        
+	    //This is where we will handle information sent to and from back end.
+	    
+	    //get the room code
+	    var room_code = "{{room_code}}";
+	    var pk = "{{ pk }}"
+	    //make a new websocket on the server at ~/ws/room/ROOM_CODE/
+	    var roomSocket = new WebSocket("ws://" + window.location.host + "/ws/room/" + room_code + "/" + pk + "/");
+
+	    var userTeam = {{player_team }};
+        var currentTurn = {{team_turn}};
+        
+        //change whose turn it is (add any visual effects needed here)
+        function changeTurn(newturn) {
+            currentTurn = newturn;
+            updateTeamTurn();
+        }
+        
+        var currentClue = "{{ currentClue }}";
+        var wordsLeft = {{ wordsLeft }};
+        
+        // this will update the banner text, to alert everyone of the current clue, or to say the game is over, or to say it's time for one captain
+        // to give a clue
+        function updateBanner() {
+            var banner_text = "";
+            if (wordsLeft > 0)
+            {
+                banner_text = "Current Hint: " + currentClue + " " + wordsLeft;
+            } else if (wordsLeft == 0) {
+                banner_text = "Waiting for a hint from the captain of " + (currentTurn == 1 ? "Red" : "Blue") + " team";
+            } else if (wordsLeft == -1) {
+                banner_text = "Game Over! You Win!";
+            } else {
+                banner_text = "Game Over! You Lost!";
+            }
+            for (i = 0; i < document.getElementsByClassName("currenthint").length; i ++) {
+                node = document.getElementsByClassName("currenthint")[i];
+                node.innerHTML = banner_text;
+            }
+        }
+        
+	    //handle events from the websocket
+	    
+	    //we get information that a button was clicked
+	    roomSocket.onselect = function(e) {
+	        var data = JSON.parse(e.data);
+	        
+	    }
+	    
+        
+	    roomSocket.onclose = function(e) {
+	        console.error('Socket closed');
+	    }
+	    
+	    
+	    //This is where we get data form the server.
+	    roomSocket.onmessage = function(e) {
+	        //location.reload(true);
+            if (!gameIsOver)
+            {
+                
+                data = JSON.parse(e.data);
+                console.log(e.data)
+                if (data["message_type"] == "button_press") {
+                    //get the right button using getElementByID with the 'x' and 'y' sent in data
+                    buttons = document.getElementsByClassName("button_x" + data["x"] + "y" + data["y"]);
+                    if (buttons.length > 0) {
+                        console.log("We have buttons to change, lets get on that")
+                    } else {
+                        console.log("That's weird, no buttons found.")
+                    }
+                    for (i = 0; i < buttons.length; i++) {
+
+                        //find in the classes the index of the class "team(whatever)unrevealed
+                        button = buttons[i]
+                        classes = button.className.split(" ");
+
+                        classIndex = classes.indexOf("team" + data["team"] + "unrevealed");
+
+                        if (classIndex != -1) {
+                            //replace that class with team(whatever)revealed
+                            classes[classIndex] = "team" + data["team"] + "revealed";
+                        } else {
+                            //classIndex is -1, meaning that class is not on the element. if this is a player computer, that is expected.
+                            //we instead just look for "unrevealed.
+                            classIndex = classes.indexOf("unrevealed");
+                            if (classIndex != -1) {
+                                classes[classIndex] = "team" + data["team"] + "revealed";
+                            }
+                        }
+                        button.className = classes.join(" ");
+                    }
+
+                } else if (data["message_type"] == "player" && data['name'] != "{{players_name}}") {
+                    var correctDiv = "";
+
+                    //check to see if the new player is on the same team as this player. if so we'll add them to this player's side; otherwise add them to the other side
+                    if (data["team"] == userTeam) {
+                        correctDiv = "myteam";
+                    } else {
+                        correctDiv = "otherteam";
+                    }
+
+
+                    for (i = 0; i < document.getElementsByClassName(correctDiv).length; i++)
+                    {
+                        //create image tag with the right image
+                        var imageTag = document.createElement("img");
+                        switch(data["avatar"]){
+                            case 0:
+                                imageTag.src = '{%static 'Images/codeyColor.png' %}';
+                                break;
+                            case 1:
+                                imageTag.src = '{%static 'Images/franColor.png' %}';
+                                break;
+                            case 2:
+                                imageTag.src = '{%static 'Images/robertColor.png' %}';
+                                break;
+                            case 3:
+                                imageTag.src = '{%static 'Images/oscarColor.png' %}';
+                                break;
+                            case 4:
+                                imageTag.src = '{%static 'Images/azraColor.png' %}';
+                                break;
+                            case 5:
+                                imageTag.src = '{%static 'Images/jackieColor.png' %}';
+                                break;
+                            case 6:
+                                imageTag.src = '{%static 'Images/lukeColor.png' %}';
+                                break;
+                            case 7:
+                                imageTag.src = '{%static 'Images/yonatanColor.png' %}';
+                                break;
+
+                        }
+                        imageTag.height = '50';
+                        imageTag.width = '50';
+
+                        var playerName = document.createElement("p");
+                        var playerText = document.createTextNode(data["name"]);
+                        playerName.appendChild(playerText);
+                        document.getElementsByClassName(correctDiv)[i].appendChild(imageTag);
+                        document.getElementsByClassName(correctDiv)[i].appendChild(playerName);
+                    }
+                } else if (data["message_type"] == "clue") {
+                    currentClue = data["word"];
+                    wordsLeft = data["num"];
+                    updateBanner();
+                } else if (data['message_type'] == "turn") {
+                    changeTurn(parseInt(data['team']))
+                } else if (data['message_type'] == "send_time") {
+                    setTimer(data["seconds_since_epoch"])
+                } else if (data['message_type'] == "game_over") {
+                    gameOver(data['Won?'])
+                }
+            }
+	    }
+	    
+	    function wordselected(x,y) {
+	        //this function will get called when a button gets clicked.
+	        //we send a json object with the x and y coordinates of the selected button.
+            if (userTeam == currentTurn && wordsLeft != 0) {
+                roomSocket.send(JSON.stringify({'type': 'button', 'x': x, 'y': y}));
+            } else {
+                notAbleToGuess();
+            }
+	        
+	    }
+        //Backend function to start timer
+        function setTimer(timeSinceEpoch) {
+            timerstarttime = timeSinceEpoch;
+            startTimer();
+        }
+        
+        
+        //sends the new clue to the backend using WebSockets
+        function sendclue() {
+            if (userTeam == currentTurn && wordsLeft == 0) {
+                var num = -1;
+                var word = "";
+                if (document.getElementById('hintnum1').value != "" && document.getElementById('hintword1').value != "") {
+                    num = parseInt(document.getElementById('hintnum1').value);
+                    word = document.getElementById('hintword1').value;
+                } else if (document.getElementById('hintnum2').value != "" && document.getElementById('hintword2').value != "") {
+                    num = parseInt(document.getElementById('hintnum2').value);
+                    word = document.getElementById('hintword2').value;
+                } else {
+                    return;
+                }
+                roomSocket.send(JSON.stringify({'type': 'clue', 'word': word, 'num': num}));
+            } else {
+                notAbleToGiveHint()
+            }
+        }
+        
+        
+        //tell the websocket a new person has joined
+	    roomSocket.onopen = function() {
+	        //this function will happen as soon as the page loads. It sends info to the backend that a new player has joined, the backend sends back to everyone the data about the new player.
+	        roomSocket.send(JSON.stringify({'type': 'player', 'pk': '{{ pk }}'}));
+            updateBanner();
+            updateTeamTurn();
+	    }
+        
+        //Notifies players when they can play
+        function notAbleToGuess() {
+            alert("You can't guess right now!");
+        }
+        
+        //Notifies Captains when they can hint
+        function notAbleToGiveHint() {
+            alert("You can't enter a clue right now!");
+        }
+        
+        //parameter of "won" is a boolean, True if you won, False if you didn't
+        function gameOver(won) {
+            if (won == true) {
+                $("#winmodal").modal({ //Modal cannot be clicked out of
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $("#winmodal").modal("show");
+                
+                wordsLeft = -1;
+            } else {
+                $("#losemodal").modal({ //Modal cannot be clicked out of
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $("#losemodal").modal("show");
+                wordsLeft = -2;
+            }
+            gameIsOver = true;
+            timerstarttime = 0;
+            updateBanner();
+            showTimer();
+        }
+        
+        
+	</script>
+
+     <style>
+
+        /* Set the heading to the same family (this is for 'Team Blue' and 'Team Red') */
+    	h3{
+    		font-family: Rockwell;
+    		font-size: 24px;
+    		padding-top: 10px;
+    	}
+    	rockwell-font{
+    		font-family: Rockwell;
+    	}
+    	p{
+    		font-family: 'Zilla Slab';
+    		font-size: 18px;
+    	}
+    	/* Sets the class to be right-aligned */
+    	.right{
+    		text-align: right;
+    	}
+    	/* Table settings and formatting */
+    	td{
+    		height: 100px;
+    		text-align: center;
+    	}
+    	.table-sm>tbody>tr>td{
+    		height: 50px;
+    		padding: 1px;
+    	}
+    	/* Button sizes and formatting for screens large and greater */
+    	.lg-btn{
+    		background-color: #ffd24d;
+			height: 100%;
+			width: 125px;
+			border: 1.5px  #262626 solid;
+			font-size: 18px;
+			margin: 0px;
+			border-radius: 15px;
+			color: #262626;
+			font-family: 'Mada';
+    	}
+    	/* Hover effect for the buttons when not a captain */
+    	.btn-default:hover, &:not(team1unrevealed,team2unrevealed):hover{
+    		cursor: pointer;
+			background-color: #ffbf00;
+			color: white;
+    	}
+    	/* Button sizes and formatting for screens smaller than large */
+    	.sm-btn{
+    		background-color: #ffd24d;
+			height: 100%;
+			width: 63px;
+			border: 1px  #262626 solid;
+			font-size: 11px;
+			margin:0px;
+			border-radius: 10px;
+			color: #262626;
+			font-family: 'Mada';
+			padding: 0px;
+    	}
+        @media (min-width: 768px) {  
+            .sm-btn{
+                background-color: #ffd24d;
+                height: 100%;
+                width: 90px;
+			 	border: 1px  #262626 solid;
+				font-size: 12px;
+				margin:0px;
+				border-radius: 12px;
+				color: #262626;
+				font-family: 'Mada';
+				padding: 0px;  
+            }
+         
+         }
+         
+        /* Tutorial */
+        hr{
+            border: 1px solid grey;
+            border-radius: 2px;
+        }
+        /* Winning and losing popup*/
+         #winmodal .modal-content{
+            background-color: rgba(0,0,0,0.0);
+             border:none;
+         }
+         #losemodal .modal-content{
+            background-color: rgba(0,0,0,0.0);
+             border:none;
+         }
+         
+         /* Class formatting to get rid of the color on the Team Turn Graphic */
+        .teamturn-bw{
+            
+            filter: brightness(0);
+            opacity: .5;
+        }
+    	/* Button classes for different Word Assignments to be color coded accordingly */
+
+    	/* For unrevealed neutral buttons */
+    	.unrevealed{
+			background-color: #ffd24d;
+			color: #262626;
+		}
+        /* For revealed neutral buttons */
+		.team0revealed{
+			/*background-color: #ffbf00;*/
+			background: url("{%static 'Images/neutralword.png' %}") #ffd24d;;
+			background-size: 60px 60px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		}
+		/* For revealed blue team buttons */
+		.team1revealed{
+			/*background-color: #66c7f4;*/
+			background-color: #58c2f3;
+			background: url("{%static 'Images/team2logo2blue.png' %}") #58c2f3;
+			background-size: 60px 60px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		}
+		/* For revealed red team buttons */
+		.team2revealed{
+			background: url("{%static 'Images/team1logo2.png' %}") #f9064b;
+			background-size: 60px 60px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+
+		}
+		/* For unrevealed blue team buttons (for captains before button is clicked)*/
+		.team1unrevealed{
+			background-color: #58c2f3;
+			background: url("{%static 'Images/team2logo2blue.png' %}") 	 #cfeefc;
+			background-size: 60px 60px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		}
+		/* For unrevealed red team buttons (for captains before button is clicked)*/
+		.team2unrevealed{
+			/*background-color: #f9064b;*/
+			background: url("{%static 'Images/team1logo2.png' %}") #fc83a5;
+			background-size: 60px 60px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		}
+		/* For revealed bomb buttons)*/
+		.team-1revealed{
+			background: url("{%static 'Images/bomb.png' %}") white;
+			background-size: 50px 50px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+
+		}
+		/* For unrevealed bomb buttons (for captains before buttons is clicked )*/
+		.team-1unrevealed{
+			/*background-color: grey;*/
+			background: url("{%static 'Images/bomb.png' %}")  #d9d9d9;
+			background-size: 50px 50px;
+			background-repeat: no-repeat;
+			background-position: center;
+			color: white;
+			text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		}
+		/* Footer Adjustments */
+    	.footer{
+            position: absolute;
+            bottom:0;
+            height:60px;
+            width:100%;  
+        }
+    </style>
+ </head>
+<body>
+    
+    <!--- Tutorial Popup --->
+     <div class = "modal fade" id = "tutorialpopup">
+        <div class = "modal-dialog" role = "document">
+            <div class = "modal-content">
+                <div class = "modal-header">
+                    <h5 class = "modal-title" id = "tutorialpopuptitle">How to Play!</h5>
+                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class = "modal-body">
+                    <div class ="container">
+                       
+                        <div class = "row justify-content-center">
+                            <p>Welcome to DumbFounded! A game oriented around collaboration, connections, and helping you Find Your WordsTM. </p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/1- Logo Screen.png' %}" class = "img-fluid" id = "tutorialimg1" alt = "tutorialimg1">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>All players will be split into two teams: Team Red and Team Blue.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/2- Teams & Captains.png' %}" class = "img-fluid" id = "tutorialimg2" alt = "tutorialimg2">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Each team will have a captain, who’s screen will show them a board of randomly generated words that correspond to each team. The yellow boxes are neutral, and the grey box is the bomb word.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/3- Captain Screen.png' %}" class = "img-fluid" id = "tutorialimg3" alt = "tutorialimg3">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>The players screens won’t show which words correspond to which team, so it’s the team captain’s job to help the players guess which words are theirs.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/4- Player Screen.png' %}" class = "img-fluid" id = "tutorialimg4" alt = "tutorialimg4">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>On their turn, they can only tell their team members one word that connects as many of their words as possible, and the number of words in play that correspond to that hint using the hint feature at the top of their screen. In the example gameboard, they might connect “flower” and “tree” with the hint word “nature” and hint number “2”.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/4- Chat.png' %}" class = "img-fluid" id = "tutorialimg5" alt = "tutorialimg5">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Players on that team can then discuss their answers and select the words they believe are correct. Each correct answer will add to their score. Clicking on a word that corresponds to the other team will add to the other team’s score.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/6- Player Chat.png' %}" class = "img-fluid" id = "tutorialimg6" alt = "tutorialimg6">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Clicking on a neutral word will immediately end the team’s turn. Be careful! Clicking on the random “bomb” word will immediately make your team lose the game.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/7- Player Chat Losing.png' %}" class = "img-fluid" id = "tutorialimg7" alt = "tutorialimg7">
+                        </div>
+                        <hr>
+                         <div class = "row justify-content-center">
+                            <p>The game ends when all of a team’s words are revealed or the bomb word is clicked. The team with the highest score (or the team who didn’t click the bomb word) at the end wins!</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/8- Winners.png' %}" class = "img-fluid" id = "tutorialimg8" alt = "tutorialimg8">
+                        </div>
+                        <hr>
+                        
+                        
+                        
+                        
+                        
+    
+                    </div>
+            
+                </div>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Start Playing!</button>
+                </div>   
+                    
+                    
+                </div>         
+            </div>    
+        </div>
+         
+  
+    
+   <!--- Winning Popup --->
+<div class="modal fade" id="winmodal">
+  <div class="modal-dialog modal-dialog-centered" role="document" >
+    <div class="modal-content">
+      <div class="modal-body" id = "wincontent">
+          <div class="row justify-content-center">
+            {% if player_team == 1%}
+            <img src="{%static "Images/team1winpic.png" %}" style="width: 600px; height: 600px;" >
+          {% else %}
+            <img src="{%static "Images/team2winpic.png" %}" style="width: 600px; height: 600px;" >
+          {% endif %}
+          
+          </div>
+          
+      </div>
+        
+    </div>
+  </div>
+</div>
+   <!--- Losing Popup --->
+<div class="modal fade" id="losemodal">
+  <div class="modal-dialog modal-dialog-centered" role="document" >
+    <div class="modal-content">
+      <div class="modal-body" id = "losecontent">
+          <div class="row justify-content-center">
+          {% if player_team == 1%}
+            <img src="{%static "Images/team1losepic.png" %}" style="width: 600px; height: 600px;" >
+          {% else %}
+            <img src="{%static "Images/team2losepic.png" %}" style="width: 600px; height: 600px;" >
+          {% endif %}
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+     
+     
+    <!--- This will display the name of the user and chosen avatar--->
+    <div class="container-fluid">
+	    <div class="row justify-content-center">
+	    	<!--- This will display the user's team information for sizes lg and up based on what team they are on and avatars on the team. Player's team will always be on the left side.--->
+			<div class="col d-none d-lg-block">
+                <div class="container-fluid">
+    				{%if player_team == 1%}
+    				<!--- This will display the user's team turn (black and white or color) and team name--->
+    				<div class="container">
+						<img src ='{%static 'Images/teamturn.png' %}' width = '100' height = '100' class="team1 teamturn-bw teamturn-img1">
+						<h3>Team Red</h3>
+					</div>
+					<!--- Displays the user avatar based on the avatar they chose with Django --->
+    				<div class="container myteam">
+    					{% for player in team_1_players %}
+                        
+    						{% if player.1 == 0 %}
+    	                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 1 %}
+    	                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 2 %}
+    	                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 3 %}
+    	                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 4 %}
+    	                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 5 %}
+    	                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 6 %}
+    	                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+    	                    {% elif player.1 == 7 %}
+    	                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+    	                    {%endif%}      
+    	            
+    	                    <p>{{player.0}}</p>
+    	                {% endfor %}
+    	             </div>
+                </div>
+                
+	             <div class="container-fluid">
+	            {% else %}
+	            	<!--- This will display the user's team turn (black and white or color) and team name--->
+	                <div class="container">
+	            		<img src ='{%static 'Images/teamturn.png' %}' width = '100' height = '100' class="team2 img-fluid teamturn-bw teamturn-img2">
+	                	<h3>Team Blue</h3>
+	                </div>
+	                <!--- Displays the user avatar based on the avatar they chose with Django--->
+                     <div class = "container myteam">
+	                {% for player in team_2_players %}
+	                    {% if player.1 == 0 %}
+	                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 1 %}
+	                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 2 %}
+	                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 3 %}
+	                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 4 %}
+	                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 5 %}
+	                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 6 %}
+	                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 7 %}
+	                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+	                    {%endif%}
+	                    <p>{{player.0}}</p>
+	                    {%endfor%}
+                        </div>
+	            {% endif %}
+                </div>
+            </div>
+			
+
+		<!--- This will display the board game and middle column for sizes lg and up--->
+	    	<div class="col d-none d-lg-block">
+                <div class = "container">
+                    <!--- Displays hint input for captains --->
+                    {%if is_captain %}
+                    
+                        <div class = "row justify-content-center hint">
+                            <h4>Enter your hint here</h4>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <p class="input-group-text" id="">Hint Word and Num</p>
+                                </div>
+                            <input type="text" class="form-control" placeholder="Hint Word" id="hintword1" name="hintword" maxlength= '10'>
+                            <input type="text" class="form-control" placeholder="Number" id="hintnum1" name="hintnum" maxlength= '1'>
+                            <button class="btn btn-outline-secondary" onclick="sendclue()" type="submit">Submit</button>
+                        </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!--- Displays current hint and the time --->
+                    <div class = "container">
+                        <div class = "row justify-content-center hint">
+                        <div class = "col">
+                            <p class="currenthint">Current Hint: {{currentClue}}</p>
+                        </div>
+                        
+                            <p id= "timemin"></p>
+                            <p id="colon">: </p>
+                            <p id= "timesec"></p>
+                       
+                    </div>
+                    </div>
+                    
+                
+                
+                </div>
+	    		<div class="container">
+	    			<!--- Displays the user avatar based on the avatar they chose --->
+		    		<div class="row justify-content-center">
+                        {% if avatar_num  %}
+                            {% if avatar_num == 0 %}
+                                <img src ='{%static 'Images/codeyColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 1 %}
+                                <img src ='{%static 'Images/franColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 2 %}
+                                <img src ='{%static 'Images/robertColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 3 %}
+                                <img src ='{%static 'Images/oscarColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 4 %}
+                                <img src ='{%static 'Images/azraColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 5 %}
+                                <img src ='{%static 'Images/jackieColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 6 %}
+                                <img src ='{%static 'Images/lukeColor.png' %}' width = '125' height = '125'/>
+                            {% elif avatar_num == 7 %}
+                                <img src ='{%static 'Images/yonatanColor.png' %}' width = '125' height = '125'/>
+                            {%endif%}
+                        {% endif %}
+		    		</div>
+		    		<!--- Displays the room code --->
+		    		<div class="row justify-content-center">
+		    			<p>Your room code is {{ room_code }}</p>
+		    		</div>
+		    		<!--- Displays the player name and if they are a captain --->
+		    		<div class="row justify-content-center">
+		    			<p>Welcome{%if is_captain %} Captain{% endif %} {{players_name}}!</p>
+		    		</div>
+		    	</div>
+		    	{% if all_rows %}
+		    	<!--- Displays table for the buttons by using Django --->
+		    	<div class="table-responsive text-nowrap justify-content-center" id="gameTable">
+		    		<table class="table table-borderless table-lg">
+		    			{% for row in all_rows %}
+			    			<tr>
+			    				{% for bp in row %}
+			    					{% if is_captain %}
+			    						{% if bp.revealed %}
+			    							<!--- Displays a button that has been revealed for captains--->
+			    							<td>
+	                                    		<button disabled class = 'btn-default lg-btn team{{bp.team}}revealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<!--- Displays a button that has not been revealed and is for captains--->
+			    							<td>
+	                                    		<button disabled class = 'btn-default lg-btn team{{bp.team}}unrevealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% else %}
+	                                	{% if bp.revealed %}
+	                                		<!--- Displays a button that has been revealed and not for captains--->
+	                                		<td>
+	                                    		<button class = 'btn-default lg-btn team{{bp.team}}revealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<!--- Displays a button that has not been revealed and not for captains (for regular players)--->
+	                                		<td>
+	                                    		<button class = 'btn-default lg-btn unrevealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% endif %}
+	                            {% endfor %}
+			    			</tr>
+		    			{% endfor %}
+		    		</table>
+		    	</div>
+		    	{% endif %}
+		    </div>
+
+		    <!--- This will display the board game and middle column for sizes smaller than lg--->
+		    <div class="col d-lg-none d-xl-none">
+                <div class = "container">
+                    <!--- Displays hint input for captains for smaller screens--->
+                    {%if is_captain %}
+                    
+                        <div class = "row justify-content-center hint">
+                            <h4>Enter your hint here</h4>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <p class="input-group-text" id="">Hint Word and Num</p>
+                                </div>
+                            <input type="text" class="form-control" placeholder="Word" id="hintword2" name="hintword" maxlength= '10'>
+                            <div class="w-100 d-md-none"></div>
+                            <input type="text" class="form-control" placeholder="Number" id="hintnum2" name="hintnum" maxlength= '1'>
+                            <button class="btn btn-outline-secondary" onclick="sendclue()" type="submit">Submit</button>
+                        </div>
+                        </div>
+                    {% endif %}
+                    
+                    
+                     <!--- Displays current hint and the time --->
+                    <div class = "container">
+                        <div class = "row justify-content-center hint">
+                        <div class = "col">
+                            <p class="currenthint">Current Hint: </p>
+                        </div>
+                        
+                            <p id= "timeminsmall"></p>
+                            <p id="colonsmall">: </p>
+                            <p id= "timesecsmall"></p>
+                       
+                    </div>
+                    </div>
+                
+                
+                </div>
+	    		<div class="container">
+	    			<!--- Displays the user avatar based on the avatar they chose --->
+		    		<div class="row justify-content-center">
+		    			{%if avatar_num == 0%}
+			                <img src ='{%static 'Images/codeyColor.png' %}' width = '125' height = '125'>
+			        
+			            {%elif avatar_num == 1%}
+			                <img src ='{%static 'Images/franColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 2%}
+			                <img src ='{%static 'Images/robertColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 3%}
+			                <img src ='{%static 'Images/oscarColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 4%}
+			                <img src ='{%static 'Images/azraColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 5%}
+			                <img src ='{%static 'Images/jackieColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 6%}
+			                <img src ='{%static 'Images/lukeColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 7%}
+			                <img src ='{%static 'Images/yonatanColor.png' %}' width = '125' height = '125'>
+			            {%endif%}
+		    		</div>
+		    		<!--- Displays the room code --->
+		    		<div class="row justify-content-center">
+		    			<p>Your room code is {{ room_code }}</p>
+		    		</div>
+		    		<!--- Displays the player name and if they are a captain --->
+		    		<div class="row justify-content-center">
+		    			<p>Welcome{%if is_captain %} Captain{% endif %} {{players_name}}!</p>
+		    		</div>
+		    	</div>
+		    	{% if all_rows %}
+		    	<!--- Displays table for the buttons using Django--->
+		    	<div class="table-responsive w-auto text-nowrap justify-content-center" id="gameTable">
+		    		<table class="table table-borderless table-sm">
+		    			{% for row in all_rows %}
+			    			<tr>
+			    				{% for bp in row %}
+			    					{% if is_captain %}
+			    						{% if bp.revealed %}
+			    							<!--- Displays a button that has been revealed for captains--->
+			    							<td>
+	                                    			<button disabled class = 'btn-default sm-btn team{{bp.team}}revealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<!--- Displays a button that has not been revealed and is for captains--->
+			    							<td>
+	                                    			<button disabled class = 'btn-default sm-btn team{{bp.team}}unrevealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% else %}
+	                                	{% if bp.revealed %}
+	                                		<!--- Displays a button that has been revealed and not for captains--->
+	                                		<td>
+	                                    			<button class = 'btn-default sm-btn team{{bp.team}}revealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<!--- Displays a button that has not been revealed and not for captains (for regular players)--->
+	                                		<td>
+	                                    			<button class = 'btn-default sm-btn unrevealed button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% endif %}
+	                            {% endfor %}
+			    			</tr>
+		    			{% endfor %}
+		    		</table>
+		    	</div>
+		    	{% endif %}
+		    </div>
+
+		    <!--- This will display the user's team information for sizes lg and up based on what team they are on and avatars on the team. Player's opposing team will always be on the right side.-->
+	    	<div class="col right d-none d-lg-block">
+	    		{%if player_team == 1%}
+	    			<!--- This will display the user's team turn (black and white or color) and team name--->
+	    			<div class="container">
+	    				<img src ='{%static 'Images/teamturn.png' %}' width = '100' height = '100' class="team1 teamturn-img2 teamturn-bw">
+	    				<h3>Team Blue</h3>
+	    			</div>
+	    			<!--- Displays the user avatar based on the avatar they chose using Django--->
+	    			<div class="container right otherteam">
+	    				{% for player in team_2_players %}
+		                    {% if player.1 == 0 %}
+		                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 1 %}
+		                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 2 %}
+		                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 3 %}
+		                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 4 %}
+		                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 5 %}
+		                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 6 %}
+		                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 7 %}
+		                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+		                    {%endif%}      
+            
+                    		<p>{{player.0}}</p>
+                		{% endfor %}
+	    			</div>
+				{% else %}
+					<!--- This will display the user's team turn (black and white or color) and team name--->
+                	<div class="container">
+						<img src ='{%static 'Images/teamturn.png' %}' width = '100' height = '100' class="team2 img-fluid teamturn-bw teamturn-img1">
+                		<h3>Team Red</h3>	
+                	</div>
+                	<!--- Displays the user avatar based on the avatar they chose using Django--->
+	    			<div class="container right otherteam">
+	    				{% for player in team_1_players %}
+		                    {% if player.1 == 0 %}
+		                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 1 %}
+		                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 2 %}
+		                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 3 %}
+		                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 4 %}
+		                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 5 %}
+		                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 6 %}
+		                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 7 %}
+		                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+		                    {%endif%}
+		                    <p>{{player.0}}</p>
+		                {%endfor%}
+					</div>
+				{% endif %}
+	    	</div>
+
+	    	<!--- This will display the user's team information for sizes lg and smaller based on what team they are on and avatars on the team. Player's team will always be on the top.-->
+	    	<div class="container-fluid d-lg-none">
+		    	<div class="row d-lg-none">
+		    		{%if player_team == 1%}
+			    		<div class="col-sm-2 rockwell-font">
+			    			<!--- This will display the user's team turn (black and white or color) and team name--->
+			    			<div class="row">
+			    				<img src ='{%static 'Images/teamturn.png' %}' width = '40' height = '40' class="team1 teamturn-img1 teamturn-bw">
+			    				<h3>Team Red</h3>
+			    			</div>
+			    		</div>
+			    		<div class="col">
+			    			<!--- Displays the user avatar based on the avatar they chose using Django --->
+			    			<div class="row right myteam">
+			    				{% for player in team_1_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}      
+		            
+		                    		<p>{{player.0}}</p>
+		                		{% endfor %}
+			    			</div>
+			    		</div>
+					{% else %}
+						<div class="col-sm-2 rockwell-font">
+							<!--- This will display the user's team turn (black and white or color) and team name--->
+							<div class="row">
+								<img src ='{%static 'Images/teamturn.png' %}' width = '40' height = '40' class="team2 teamturn-bw teamturn-img2">
+								<h3>Team Blue</h3>
+							</div>
+						</div>
+		                <div class="col">
+		                	<!--- Displays the user avatar based on the avatar they chose using Django--->
+			    			<div class="row right myteam">
+			    				{% for player in team_2_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}
+				                    <p>{{player.0}}</p>
+				                {%endfor%}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+		    	<!--- This will display the user's team information for sizes lg and smaller based on what team they are on and avatars on the team. Player's opposing team will always be on the bottom.-->
+		    	<div class="row d-lg-none">
+		    		{%if player_team == 1%}
+			    		<div class="col-sm-2 rockwell-font">
+			    			<!--- This will display the user's team turn (black and white or color) and team name--->
+			    			<div class="row">
+			    				<img src ='{%static 'Images/teamturn.png' %}' width = '40' height = '40' class="team2 teamturn-img2 teamturn-bw">
+			    				<h3>Team Blue</h3>
+			    			</div>
+			    		</div>
+			    		<div class="col">
+			    			<!--- Displays the user avatar based on the avatar they chose using Django--->
+			    			<div class="row right otherteam">
+			    				{% for player in team_2_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}      
+		            
+		                    		<p>{{player.0}}</p>
+		                		{% endfor %}
+			    			</div>
+			    		</div>
+					{% else %}
+						<div class="col-sm-2 rockwell-font">
+							<!--- This will display the user's team turn (black and white or color) and team name--->
+							<div class="row">
+								<img src ='{%static 'Images/teamturn.png' %}' width = '40' height = '40' class="team1 teamturn-bw teamturn-img1">
+								<h3>Team Red</h3>
+							</div>						</div>
+		                <div class="col">
+		                	<!--- Displays the user avatar based on the avatar they chose using Django--->
+			    			<div class="row right otherteam">
+			    				{% for player in team_1_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}
+				                    <p>{{player.0}}</p>
+				                {%endfor%}
+							</div>
+                            
+                            
+                            
+					{% endif %}
+		    	</div>
+		    </div>
+	    </div>
+	</div>
+</div>
+   
+{% endif %}
+
+
+    
+    
+    
+</body>
+</html>

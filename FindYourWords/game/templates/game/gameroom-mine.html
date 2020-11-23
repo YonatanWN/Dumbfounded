@@ -1,0 +1,1000 @@
+
+{% if room_code %}
+<html>
+<head>
+
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {%load static %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+     <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<link href='https://fonts.googleapis.com/css?family=Chewy' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Zilla Slab' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Chivo' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Mada' rel='stylesheet'>
+
+    <!--- Shows in game room possibly have it dynamic based on the code? --->
+    <title>Game Room</title>
+
+	<script>
+        $(document).ready(function(){
+		$("#tutorialpopup").modal('show');
+	   });
+        
+        
+        
+        
+	    //This is where we will handle information sent to and from back end.
+	    
+	    //get the room code
+	    var room_code = "{{room_code}}";
+	    
+	    //make a new websocket on the server at ~/ws/room/ROOM_CODE/
+	    var roomSocket = new WebSocket("ws://" + window.location.host + "/ws/room/" + room_code + "/");
+
+	    var userTeam = {{player_team }}
+
+	    //handle events from the websocket
+	    
+	    //we get information that a button was clicked
+	    roomSocket.onselect = function(e) {
+	        var data = JSON.parse(e.data);
+	        
+	    }
+	    
+	    roomSocket.onclose = function(e) {
+	        console.error('Socket closed');
+	    }
+	    
+	    
+	    //This is where we get data form the server.
+	    roomSocket.onmessage = function(e) {
+	        //location.reload(true);
+	        data = JSON.parse(e.data);
+	        console.log(e.data)
+	        if (data["message_type"] == "button_press") {
+	            //get the right button using getElementByID with the 'x' and 'y' sent in data
+	            buttons = document.getElementsByClassName("button_x" + data["x"] + "y" + data["y"]);
+	            
+                for (i = 0; i < buttons.length; i++) {
+                    //find in the classes the index of the class "team(whatever)unrevealed
+                    button = buttons[i]
+                    classes = button.className.split(" ");
+
+                    classIndex = classes.indexOf("team" + data["team"] + "unrevealed");
+
+                    if (classIndex != -1) {
+                        //replace that class with team(whatever)revealed
+                        classes[classIndex] = "team" + data["team"] + "revealed";
+                    } else {
+                        //classIndex is -1, meaning that class is not on the element. if this is a player computer, that is expected.
+                        //we instead just look for "unrevealed.
+                        classIndex = classes.indexOf("unrevealed");
+                        if (classIndex != -1) {
+                            classes[classIndex] = "team" + data["team"] + "revealed";
+                        }
+                    }
+                    button.className = classes.join(" ");
+                }
+	            
+	        } else if (data["message_type"] == "player" && data['name'] != "{{players_name}}") {
+	            var correctDiv = "";
+	            
+	            //check to see if the new player is on the same team as this player. if so we'll add them to this player's side; otherwise add them to the other side
+	            if (data["team"] == userTeam) {
+	                correctDiv = "myteam";
+	            } else {
+	                correctDiv = "otherteam";
+	            }
+	            
+	            
+                for (i = 0; i < document.getElementsByClassName(correctDiv).length; i++)
+                {
+                    //create image tag with the right image
+                    var imageTag = document.createElement("img");
+                    switch(data["avatar"]){
+                        case 0:
+                            imageTag.src = '{%static 'Images/codeyColor.png' %}';
+                            break;
+                        case 1:
+                            imageTag.src = '{%static 'Images/franColor.png' %}';
+                            break;
+                        case 2:
+                            imageTag.src = '{%static 'Images/robertColor.png' %}';
+                            break;
+                        case 3:
+                            imageTag.src = '{%static 'Images/oscarColor.png' %}';
+                            break;
+                        case 4:
+                            imageTag.src = '{%static 'Images/azraColor.png' %}';
+                            break;
+                        case 5:
+                            imageTag.src = '{%static 'Images/jackieColor.png' %}';
+                            break;
+                        case 6:
+                            imageTag.src = '{%static 'Images/lukeColor.png' %}';
+                            break;
+                        case 7:
+                            imageTag.src = '{%static 'Images/yonatanColor.png' %}';
+                            break;
+
+                    }
+                    imageTag.height = '50';
+                    imageTag.width = '50';
+
+                    var playerName = document.createElement("p");
+                    var playerText = document.createTextNode(data["name"]);
+                    playerName.appendChild(playerText);
+                    document.getElementsByClassName(correctDiv)[i].appendChild(imageTag);
+                    document.getElementsByClassName(correctDiv)[i].appendChild(playerName);
+                }
+	        } else if (data["message_type"] == "msg" && data["player"] != "{{ players_name }}") {
+                //add node to chat
+                var outerDiv = document.createElement('div');
+                outerDiv.className = "popupchatreceive";
+            
+                var innerDiv = document.createElement('div');
+                innerDiv.className = "row";
+                outerDiv.appendChild(innerDiv);
+            
+                var messageNode = document.createElement('p');
+                var messageText = document.createTextNode(data['msg']);
+                messageNode.appendChild(messageText);
+                innerDiv.appendChild(messageNode);
+                outerDiv.appendChild(innerDiv);
+            
+                document.getElementById("popupchatmessages").appendChild(outerDiv);
+            }
+	        
+	        
+	        //alert(alert_text)
+	    }
+	    
+	    function wordselected(x,y) {
+	        //this function will get called when a button gets clicked.
+	        //we send a json object with the x and y coordinates of the selected button.
+	        roomSocket.send(JSON.stringify({'type': 'button', 'x': x, 'y': y}));
+	    }
+        
+        function sendclue() {
+            //This function will send a message to the backend
+            roomSocket.send(JSON.stringify({'type': 'clue', 'word': document.getElementById('hintword').value, 'num': document.getElementById('hintnum')}))
+        }
+        
+	    roomSocket.onopen = function() {
+	        //this function will happen as soon as the page loads. It sends info to the backend that a new player has joined, the backend sends back to everyone the data about the new player.
+	        roomSocket.send(JSON.stringify({'type': 'player', 'pk': '{{ pk }}'}));
+	    }
+
+	</script>
+
+     <style>
+        /*
+        .container{
+            margin-top: 10px;
+    		border: 1px solid blue;
+    	}
+    	.row{
+    		border: 1px solid green;
+    	}
+        .col{
+            border: 1px solid red;
+        }
+        */
+            
+    	h3{
+    		font-family: Rockwell;
+    		font-size: 24px;
+    		padding-top: 10px;
+    	}
+    	rockwell-font{
+    		font-family: Rockwell;
+    	}
+    	p{
+    		font-family: 'Zilla Slab';
+    		font-size: 18px;
+    	}
+    	/*
+    	.col-sm-2{
+    		border: 1px solid red;
+    	}
+    	.col-sm-8{
+    		border: 1px solid black;
+    		text-align: center;
+    	}*/
+    	.right{
+    		text-align: right;
+    	}
+    	td{
+    		height: 100px;
+    		text-align: center;
+    	}
+    	.table-sm>tbody>tr>td{
+    		height: 50px;
+    		padding: 1px;
+    	}
+    	.lg-btn{
+    		background-color: #ffd24d;
+			height: 100%;
+			width: 125px;
+			border: 1.5px  #262626 solid;
+			font-size: 18px;
+			margin: 0px;
+			border-radius: 15px;
+			color: #262626;
+			font-family: 'Mada';
+    	}
+    	.btn-default:hover, &:not(team1unrevealed,team2unrevealed):hover{
+    		cursor: pointer;
+			background-color: #ffbf00;
+			color: white;
+    	}
+    	.sm-btn{
+    		background-color: #ffd24d;
+			height: 100%;
+			width: 63px;
+			border: 1px  #262626 solid;
+			font-size: 10px;
+			margin:0px;
+			border-radius: 10px;
+			color: #262626;
+			font-family: 'Mada';
+			padding: 0px;
+    	}
+        @media (min-width: 768px) {  
+            .sm-btn{
+                background-color: #ffd24d;
+                height: 100%;
+                width: 90px;
+			 border: 1px  #262626 solid;
+			font-size: 12px;
+			margin:0px;
+			border-radius: 12px;
+			color: #262626;
+			font-family: 'Mada';
+			padding: 0px;
+                
+            }
+         
+         }
+         
+        /* Tutorial */
+        hr{
+            border: 1px solid grey;
+            border-radius: 2px;
+        }
+        /* Chat box CSS */
+        .popupchat{
+            width: 400px;
+            position: fixed;
+            bottom: 0;
+            right:0;
+            background-color: #f2f2f2;
+            border: 2px solid grey;
+        }
+        .popupchatheader{
+            cursor:pointer;
+            background-color: #4052c9;
+            color: white;
+        }
+        .popupchatfooter{
+            background-color:  #f2f2f2;
+        }
+        .popupchatrecieve{
+            margin-left: 7px;
+            margin-bottom: 2px;
+        }
+        .popupchatsend{
+            float:right;
+            margin-right: 7px;
+            margin-bottom: 2px;
+        }
+        .btn-chat{
+        	background-color:  #41be90;
+        	color:black;
+        }
+        .btn-chat:hover{
+        	background-color: #39a87f;
+        }
+    	/* Button classes for different Word Assignments to be color coded accordingly */
+    	.unrevealed{
+			background-color: #ffd24d;
+			color: #262626;
+		}
+        
+		.team0revealed{
+			background-color: #ffbf00;
+			color: white;
+		}
+		.team1revealed{
+			background-color: #66c7f4;
+			color: white;
+		}
+		.team2revealed{
+			background-color: #e00644;
+			color: white;
+		}
+		.team1unrevealed{
+			background-color: #58c2f3;
+			color: #262626;
+		}
+		.team2unrevealed{
+			background-color: #f9064b;
+			color: #262626;
+		}
+		.team-1revealed{
+			background-color: black;
+			color: white;
+		}
+		.team-1unrevealed{
+			background-color: grey;
+			color: #262626;
+		}
+		/* Footer Adjustments */
+    	.footer{
+            position: absolute;
+            bottom:0;
+            height:60px;
+            width:100%;  
+        }
+    </style>
+ </head>
+<body>
+    <!--- Tutorial Popup --->
+     <div class = "modal fade" id = "tutorialpopup">
+        <div class = "modal-dialog" role = "document">
+            <div class = "modal-content">
+                <div class = "modal-header">
+                    <h5 class = "modal-title" id = "tutorialpopuptitle">How to Play!</h5>
+                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class = "modal-body">
+                    <div class ="container">
+                       
+                        <div class = "row justify-content-center">
+                            <p>Welcome to DumbFounded! A game oriented around collaboration, connections, and helping you Find Your WordsTM. </p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/1- Logo Screen.png' %}" class = "img-fluid" id = "tutorialimg1" alt = "tutorialimg1">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>All players will be split into two teams: Team Red and Team Blue.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/2- Teams & Captains.png' %}" class = "img-fluid" id = "tutorialimg2" alt = "tutorialimg2">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Each team will have a captain, who’s screen will show them a board of randomly generated words that correspond to each team. The yellow boxes are neutral, and the grey box is the bomb word.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/3- Captain Screen.png' %}" class = "img-fluid" id = "tutorialimg3" alt = "tutorialimg3">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>The players screens won’t show which words correspond to which team, so it’s the team captain’s job to help the players guess which words are theirs.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/4- Player Screen.png' %}" class = "img-fluid" id = "tutorialimg4" alt = "tutorialimg4">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>On their turn, they can only tell their team members one word that connects as many of their words as possible, and the number of words in play that correspond to that hint using the chat. In the example gameboard, they might connect “flower” and “tree” with the hint “nature, two.”</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/4- Chat.png' %}" class = "img-fluid" id = "tutorialimg5" alt = "tutorialimg5">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Players on that team can then discuss their answers and select the words they believe are correct. Each correct answer will add to their score. Clicking on a word that corresponds to the other team will add to the other team’s score.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/6- Player Chat.png' %}" class = "img-fluid" id = "tutorialimg6" alt = "tutorialimg6">
+                        </div>
+                        <hr>
+                        <div class = "row justify-content-center">
+                            <p>Clicking on a neutral word will immediately end the team’s turn. Be careful! Clicking on the random “bomb” word will immediately make your team lose the game.</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/7- Player Chat Losing.png' %}" class = "img-fluid" id = "tutorialimg7" alt = "tutorialimg7">
+                        </div>
+                        <hr>
+                         <div class = "row justify-content-center">
+                            <p>The game ends when all of a team’s words are revealed or the bomb word is clicked. The team with the highest score (or the team who didn’t click the bomb word) at the end wins!</p>                          
+                        </div> 
+                        <div class = "row justify-content-center">
+                        <img src = "{%static 'Images/8- Winners.png' %}" class = "img-fluid" id = "tutorialimg8" alt = "tutorialimg8">
+                        </div>
+                        <hr>
+                        
+                        
+                        
+                        <!--
+                        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                            <ol class="carousel-indicators">
+                                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="4"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="5"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="6"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="7"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="8"></li>
+                            </ol>
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img class="d-block w-100" src="{%static 'Images/1- Logo Screen.png' %}" alt="First slide">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>Welcome to DumbFounded!</h5>
+                                        <p>A game oriented around collaboration, connections, and helping you Find Your WordsTM.</p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
+                                    <img class="d-block w-100" src="{%static 'Images/2- Teams & Captains.png' %}" alt="Second slide">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>...</h5>
+                                        <p>...</p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
+                                    <img class="d-block w-100" src="{%static 'Images/3- Captain Screen.png' %}" alt="Third slide">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>...</h5>
+                                        <p>...</p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
+                                    <img class="d-block w-100" src="{%static 'Images/4- Player Screen.png' %}" alt="Third slide">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>...</h5>
+                                        <p>...</p>
+                                    </div>
+                                </div>
+                                
+                                
+                                
+                            </div>
+                          <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                          <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                          </a>
+                        </div>
+                        
+                        -->
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+            
+                </div>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Start Playing!</button>
+                </div>   
+                    
+                    
+                </div>
+                
+                
+                
+                
+                
+                
+                
+            </div>    
+        </div>
+         
+         
+     
+     
+    <!--- This will display the name of the user and chosen avatar--->
+    <div class="container-fluid">
+	    <div class="row justify-content-center">
+	    	<!--- This will display the user's team information for sizes lg and up--->
+			<div class="col d-none d-lg-block">
+				{%if player_team == 1%}
+					<h3>Team Red</h3>
+				<div class="container myteam">
+					{% for player in team_1_players %}
+                    
+						{% if player.1 == 0 %}
+	                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 1 %}
+	                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 2 %}
+	                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 3 %}
+	                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 4 %}
+	                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 5 %}
+	                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 6 %}
+	                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 7 %}
+	                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+	                    {%endif%}      
+	            
+	                    <p>{{player.0}}</p>
+	                {% endfor %}
+	             </div>
+                
+	             <div class="container">
+	            {% else %}
+	                <h3>Team Blue</h3>
+                     <div class = "myteam">
+	                {% for player in team_2_players %}
+	                    {% if player.1 == 0 %}
+	                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 1 %}
+	                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 2 %}
+	                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 3 %}
+	                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 4 %}
+	                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 5 %}
+	                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 6 %}
+	                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+	                    {% elif player.1 == 7 %}
+	                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+	                    {%endif%}
+	                    <p>{{player.0}}</p>
+	                    {%endfor%}
+                        </div>
+	            </div>
+	            {% endif %}
+
+			</div>	
+		</div>
+		<!--- This will display the board game and middle column for sizes lg and up--->
+	    	<div class="col d-none d-lg-block">
+                <div class = "container">
+                    {%if is_captain %}
+                    
+                        <div class = "row justify-content-center hint">
+                            <h4>Enter your hint here</h4>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <p class="input-group-text" id="">Hint Word and Num</p>
+                                </div>
+                            <input type="text" class="form-control" placeholder="Hint Word" id="hintword" name="hintword" maxlength= '10'>
+                            <input type="text" class="form-control" placeholder="Number" id="hintnum" name="hintnum" maxlength= '1'>
+                            <button class="btn btn-outline-secondary" onclick="sendclue" type="submit">Submit</button>
+                        </div>
+                        </div>
+                    {% endif %}
+                    
+                    
+                    
+                    <div class = "row justify-content-center hint">
+                        <p>Current Hint: </p>
+                    </div>
+                
+                
+                </div>
+	    		<div class="container">
+		    		<div class="row justify-content-center">
+		    			{%if avatar_num == 0%}
+			                <img src ='{%static 'Images/codeyColor.png' %}' width = '125' height = '125'>
+			        
+			            {%elif avatar_num == 1%}
+			                <img src ='{%static 'Images/franColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 2%}
+			                <img src ='{%static 'Images/robertColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 3%}
+			                <img src ='{%static 'Images/oscarColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 4%}
+			                <img src ='{%static 'Images/azraColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 5%}
+			                <img src ='{%static 'Images/jackieColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 6%}
+			                <img src ='{%static 'Images/lukeColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 7%}
+			                <img src ='{%static 'Images/yonatanColor.png' %}' width = '125' height = '125'>
+			            {%endif%}
+		    		</div>
+		    		<div class="row justify-content-center">
+		    			<p>Your room code is {{ room_code }}</p>
+		    		</div>
+		    		<div class="row justify-content-center">
+		    			<p>Welcome{%if is_captain %} Captain{% endif %} {{players_name}}!</p>
+		    		</div>
+		    	</div>
+		    	{% if all_rows %}
+		    	<div class="table-responsive text-nowrap justify-content-center" id="gameTable">
+		    		<table class="table table-borderless table-lg">
+		    			{% for row in all_rows %}
+			    			<tr>
+			    				{% for bp in row %}
+			    					{% if is_captain %}
+			    						{% if bp.revealed %}
+			    							<td>
+	                                    		<button disabled class = 'btn-default lg-btn team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+			    							<td>
+	                                    		<button disabled class = 'btn-default lg-btn team{{bp.team}}unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% else %}
+	                                	{% if bp.revealed %}
+	                                		<td>
+	                                    		<button class = 'btn-default lg-btn team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<td>
+	                                    		<button class = 'btn-default lg-btn unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% endif %}
+	                            {% endfor %}
+			    			</tr>
+		    			{% endfor %}
+		    		</table>
+		    	</div>
+		    	{% endif %}
+		    </div>
+
+		    <!--- This will display the board game and middle column for sizes smaller than lg--->
+		    <div class="col d-lg-none d-xl-none">
+                <div class = "container">
+                    {%if is_captain %}
+                    
+                        <div class = "row justify-content-center hint">
+                            <h4>Enter your hint here</h4>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <p class="input-group-text" id="">Hint Word and Num</p>
+                                </div>
+                            <input type="text" class="form-control" placeholder="Word" id="hintword" name="hintword" maxlength= '10'>
+                            <input type="text" class="form-control" placeholder="Number" id="hintnum" name="hintnum" maxlength= '1'>
+                            <button class="btn btn-outline-secondary" type="submit" onclick="sendclue">Submit</button>
+                        </div>
+                        </div>
+                    {% endif %}
+                    
+                    
+                    
+                    <div class = "row justify-content-center hint">
+                        <p>Current Hint: </p>
+                    </div>
+                
+                
+                </div>
+	    		<div class="container">
+		    		<div class="row justify-content-center">
+		    			{%if avatar_num == 0%}
+			                <img src ='{%static 'Images/codeyColor.png' %}' width = '125' height = '125'>
+			        
+			            {%elif avatar_num == 1%}
+			                <img src ='{%static 'Images/franColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 2%}
+			                <img src ='{%static 'Images/robertColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 3%}
+			                <img src ='{%static 'Images/oscarColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 4%}
+			                <img src ='{%static 'Images/azraColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 5%}
+			                <img src ='{%static 'Images/jackieColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 6%}
+			                <img src ='{%static 'Images/lukeColor.png' %}' width = '125' height = '125'>
+			            {%elif avatar_num == 7%}
+			                <img src ='{%static 'Images/yonatanColor.png' %}' width = '125' height = '125'>
+			            {%endif%}
+		    		</div>
+		    		<div class="row justify-content-center">
+		    			<p>Your room code is {{ room_code }}</p>
+		    		</div>
+		    		<div class="row justify-content-center">
+		    			<p>Welcome{%if is_captain %} Captain{% endif %} {{players_name}}!</p>
+		    		</div>
+		    	</div>
+		    	{% if all_rows %}
+		    	<div class="table-responsive w-auto text-nowrap justify-content-center" id="gameTable">
+		    		<table class="table table-borderless table-sm">
+		    			{% for row in all_rows %}
+			    			<tr>
+			    				{% for bp in row %}
+			    					{% if is_captain %}
+			    						{% if bp.revealed %}
+			    							<td>
+	                                    			<button disabled class = 'btn-default sm-btn team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+			    							<td>
+	                                    			<button disabled class = 'btn-default sm-btn team{{bp.team}}unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% else %}
+	                                	{% if bp.revealed %}
+	                                		<td>
+	                                    			<button class = 'btn-default sm-btn team{{bp.team}}revealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% else %}
+	                                		<td>
+	                                    			<button class = 'btn-default sm-btn unrevealed' id = 'button_x{{bp.x}}y{{bp.y}}' onclick="wordselected({{bp.x}}, {{bp.y}})"> {{ bp.word }} </button>
+	                                		</td>
+	                                	{% endif %}
+	                                {% endif %}
+	                            {% endfor %}
+			    			</tr>
+		    			{% endfor %}
+		    		</table>
+		    	</div>
+		    	{% endif %}
+		    </div>
+
+		    <!--- This will display opposing team avatars and names for sizes lg and up--->
+	    	<div class="col right d-none d-lg-block">
+	    		{%if player_team == 1%}
+	    			<h3>Team Blue</h3>
+	    			<div class="container right otherteam">
+	    				{% for player in team_2_players %}
+		                    {% if player.1 == 0 %}
+		                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 1 %}
+		                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 2 %}
+		                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 3 %}
+		                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 4 %}
+		                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 5 %}
+		                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 6 %}
+		                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 7 %}
+		                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+		                    {%endif%}      
+            
+                    		<p>{{player.0}}</p>
+                		{% endfor %}
+	    			</div>
+				{% else %}
+                	<h3>Team Red</h3>	
+	    			<div class="container right otherteam">
+	    				{% for player in team_1_players %}
+		                    {% if player.1 == 0 %}
+		                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 1 %}
+		                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 2 %}
+		                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 3 %}
+		                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 4 %}
+		                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 5 %}
+		                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 6 %}
+		                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+		                    {% elif player.1 == 7 %}
+		                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+		                    {%endif%}
+		                    <p>{{player.0}}</p>
+		                {%endfor%}
+					</div>
+				{% endif %}
+	    	</div>
+
+	    	<!--- This will display the team assignments for lg and smaller--->
+	    	<div class="container-fluid d-lg-none">
+		    	<div class="row d-lg-none">
+		    		{%if player_team == 1%}
+			    		<div class="col-sm-2 rockwell-font">
+			    			<h3>Team Red</h3>
+			    		</div>
+			    		<div class="col">
+			    			<div class="row right myteam">
+			    				{% for player in team_1_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}      
+		            
+		                    		<p>{{player.0}}</p>
+		                		{% endfor %}
+			    			</div>
+			    		</div>
+					{% else %}
+						<div class="col-sm-2 rockwell-font">
+							<h3>Team Blue</h3>
+						</div>
+		                <div class="col">
+			    			<div class="row right myteam">
+			    				{% for player in team_2_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}
+				                    <p>{{player.0}}</p>
+				                {%endfor%}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+		    	
+		    	<div class="row d-lg-none">
+		    		{%if player_team == 1%}
+			    		<div class="col-sm-2 rockwell-font">
+			    			<h3>Team Blue</h3>
+			    		</div>
+			    		<div class="col">
+			    			<div class="row right otherteam">
+			    				{% for player in team_2_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}      
+		            
+		                    		<p>{{player.0}}</p>
+		                		{% endfor %}
+			    			</div>
+			    		</div>
+					{% else %}
+						<div class="col-sm-2 rockwell-font">
+							<h3>Team Red</h3>
+						</div>
+		                <div class="col">
+			    			<div class="row right otherteam">
+			    				{% for player in team_1_players %}
+				                    {% if player.1 == 0 %}
+				                        <img src ='{%static 'Images/codeyColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 1 %}
+				                        <img src ='{%static 'Images/franColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 2 %}
+				                        <img src ='{%static 'Images/robertColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 3 %}
+				                        <img src ='{%static 'Images/oscarColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 4 %}
+				                        <img src ='{%static 'Images/azraColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 5 %}
+				                        <img src ='{%static 'Images/jackieColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 6 %}
+				                        <img src ='{%static 'Images/lukeColor.png' %}' width = '50' height = '50'>
+				                    {% elif player.1 == 7 %}
+				                        <img src ='{%static 'Images/yonatanColor.png' %}' width = '50' height = '50'>
+				                    {%endif%}
+				                    <p>{{player.0}}</p>
+				                {%endfor%}
+							</div>
+                            
+                            
+                            
+					{% endif %}
+		    	</div>
+		    </div>
+	    </div>
+	</div>
+   
+{% endif %}
+
+<!--- Chat container
+<div class = "popupchat container">
+    <div class = "row popupchatheader justify-content-center rockwell-font">
+        <div class = "popupchatheader">
+            <div class = "popupchaticon">
+                                    
+            </div>
+                                    
+            <h3>CHAT</h3>
+        </div>                              
+    </div>
+    
+    <div class = "popupchatbody">
+    <div class = "row">
+        <div class = "container">
+            <div class = "popupchatmessages" id = "popupchatmessages">
+
+                <div class = "popupchatrecieve">
+                    <div class = "row">
+                        <p>Test</p>     
+                    </div>
+                                                      
+                </div>
+                
+                
+                <div class="popupchatsend">
+                       <div class = "row">
+                        <p>Test Me</p>     
+                    </div>                     
+                </div>
+                
+            </div>
+        
+        </div>
+        </div>
+    </div>
+    
+    <div class = "popupchatfooter">
+        <div class = "container">
+            <div class = "row">
+                <div class = "col">
+                    <div class="input-group mb-3">
+                        <input type = "text" class = "form-control" placeholder = "Send your message here!" aria-label = "Send your message here!" id="chattxt">
+                        <div class= "input-group-append">
+                            <button class = "btn btn-outline-secondary btn-chat" type = "submit" onclick="sendchat()">Send</button>
+                        </div>
+                    </div>
+                    
+                
+                </div>
+            
+            </div>
+        </div>
+    
+    
+    </div>
+   
+                            
+</div>                            
+ -->
+    
+    
+    
+</body>
+</html>

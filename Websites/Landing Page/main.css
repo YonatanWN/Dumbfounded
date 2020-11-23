@@ -1,0 +1,44 @@
+#insert-block{
+	/*Center the Game Code Area*/
+	text-align: center;
+}
+
+.gamepintxt{
+	height: 48px;
+	width:200px;
+	font-size: 16px;
+	text-decoration: none;
+}
+#gamepintxtdiv{
+	display: none;
+}
+#codeTxtBox{
+	display: none;
+	font-size: 16px;
+	padding: 13px 1px;
+	text-decoration: none;
+	text-align: center;
+}
+.button{
+	border: none;
+	color: white;
+	text-decoration: none;
+	display: inline-block;
+	height: 48px;
+	width:200px;
+	font-size: 16px;
+	margin: 2px;
+}
+#joinButton{
+	background-color: #4CAF50; /* Green */
+}
+#codeDisplay{
+	text-align: center;
+}
+#creationButton{
+	background-color: blue;
+}
+.button:hover{
+	opacity:.8;
+	cursor:pointer;
+}

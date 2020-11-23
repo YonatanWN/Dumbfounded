@@ -1,0 +1,114 @@
+<!doctype html>
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>DumbFounded Landing Page</title>
+    
+    
+</head>
+
+<body>
+    <!--- Error Messages --->
+   {% if error_messages %}
+    {% for error_message in error_messages %}
+    <div class = 'alert alert-danger' role = 'alert'>{{ error_message }}</div>
+    {% endfor %}
+    {% endif %}
+    <form action="{% url 'game:make_or_join' %}" method="post" id="makejoin">
+    {% csrf_token %}
+        
+    <!--- Aligning Everything to the center --->
+        <!--- DumbFounded Logo --->
+        <input type='hidden' id='mode' name='mode' value ='make'/>
+        <div id = 'logoDiv'>
+            <img src='#' id = 'logo' class = 'img-fluid' alt='Dumb Founded Logo'>
+        </div>
+        
+        <!--- Avatar Select Buttons --->
+        <div class = "mx-auto">
+            <div class = 'container'>
+                <div class = 'row'>
+                <!--- Avatar 0 --->
+                    <div class = 'btn-group btn-group-toggle' id = 'avatars'>
+                        <div class = 'col'>
+                        <label class = 'btn form-check-label'>
+                            <input class = "form-check-input" type = 'radio' name = 'avatar' id = 'avatar0' autocomplete="off">
+                            <img class = 'img-fluid' alt = 'Cody' id='av0' src='#' width = '125' height = '125' onclick='#'>
+                    </label>
+                    </div>
+                
+                    
+                    <div class='col'>
+                    <!--- Avatar 1 --->
+                     <label class = 'btn form-check-label'>
+                        <input class = 'form-check-input' type ='radio' name = 'avatar' id = 'avatar1' autocomplete="off">
+                        <img class = 'img-fluid' alt = 'Fran' id='av1' src='#' width = '125' height = '125' onclick='#'>
+                    </label>
+                    </div>
+                    <!--- Avatar 2 --->
+                    <div class = 'col'>
+                    <label class = 'btn form-check-label '>
+                        <input class = 'form-check-input' type = 'radio' name = 'avatar' id = 'avatar2' autocomplete="off">
+                        <img class = 'img-fluid' alt = 'Robert' id='av2' src='#' width = '125' height = '125' onclick='#'>
+                    </label>
+                    </div>
+                    <!--- Avatar 3 --->
+                    <div class = 'col'>
+                    <label class = 'btn form-check-label '>
+                        <input class = 'form-check-input' type = 'radio' name = 'avatar' id = 'avatar3' autocomplete="off">
+                        <img class = 'img-fluid' alt = 'Fran' id='av3' src='#' width = '125' height = '125' onclick='#'>
+                    </label>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <!--- Join Game Text and Buttons --->
+        <!--- Name Text Box --->
+        <div class = 'row'>
+            <div class = 'container' id='name-container'>
+            <center>
+                <form>
+                    <div class = 'form-group' id = 'name-form'>
+                        <input type = 'text' class = 'form-control input-lg' placeholder="Player Name">
+                    </div>
+                </form>
+            </center>
+            </div>
+            </div>
+        <!--- Join Code Text--->
+        <div class = 'row'>
+            <div class = 'container' id='name-container'>
+            <center>
+                <form>
+                    <div class = 'form-group'>
+                        <input type = 'text' class = 'form-control input-lg' placeholder="Game Pin">
+                    </div>
+                </form>
+            </center>
+        </div>
+    
+        
+        
+    </div>       
+</body>
+<style>
+
+   
+
+</style>

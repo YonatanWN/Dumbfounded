@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang ="en">
+<!-- 
+    Name: creategame.html
+    Purpose: Home page, allows users to create or join games
+    Version: Django Documentation, June 9, 2020
+    Authors: Yonatan Wiese-Namir,Luke Patton,Jackie Guan
+    Dependencies: Bootstrap 4, Popper.js, JQuery, Bootstrap JS, Django
+-->
+
+<head>
+    <!-- Required meta tags fff -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {%load static %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+     <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+     <script>
+        //Boolean Variables Joinclicked and back 
+        //Requires JQuery and Django
+         //Decides when to show the gamepin buttons and when to hide the create game button
+       $(document).ready(function(){
+           // If they clicked join
+           var joinclicked = false;
+           //When to toggle to initial html and when to show game pin input
+           var back = false;
+        //Toggles Black and White Filter
+        $(".avatar-img").click( 
+            function(){2
+            $(".avatar-img").addClass("avatar-bw");    
+            $(this).toggleClass("avatar-bw");
+            });
+        //Makes Join game button a submission when a join code is inputted
+        //Displays Gamepin text entry when clicked
+        $("#joinGame-bttn").click(
+            function(){
+            if (joinclicked == true){
+                $(this).removeAttr("type").attr("type","submit")
+            }    
+                
+            else{
+            $(".gamepin-txt").removeClass("hidden");
+            $("#gamepintxt").val("");
+            $("#createGame-bttn").html("Back");
+            $("#createGame-bttn").removeAttr("type").attr("type","button")
+            $("#joinGame-bttn").html("Enter");
+            $("#mode").removeAttr("value").attr("value","join")
+            joinclicked =  true;
+            back = true;
+            }
+            });
+            //Hides Gamepin text entry
+            //Makes Create game button a submit
+           $("#createGame-bttn").click(
+            function(){
+            if (back == true){
+                $(".gamepin-txt").toggleClass("hidden");
+                $("#gamepintxt").val("{{ pin }}");
+                $("#joinGame-bttn").html("Join Game");
+                $("#joinGame-bttn").removeAttr("type").attr("type","button")
+                $("#mode").removeAttr("value").attr("value","make")
+                joinclicked = false;
+                $("#createGame-bttn").html("Create Game");
+                back = false;
+            }    
+                
+            else{
+                $(this).removeAttr("type").attr("type","submit")
+            }
+            });
+    });
+         
+         
+         
+           // This script is to set variables that were sent back in case of a missing field.
+    window.addEventListener('load', function() {
+        
+        {% if mode == 'join'%}
+        //game mode is join. We run joingame to make the game pin visible and set it's value to gamepintxt (or to blank if the game code was invalid)
+        $("#joinGame-bttn").click();
+            {% if gamepintxt %}
+                document.getElementById("gamepintxt").value = "{{ gamepintxt }}";
+            {% else %}
+                document.getElementById("gamepintxt").value = "";
+            {% endif %}
+        {% endif %}
+        
+        {% if player_name %}
+            //player_name is set. Set value of player name to our player_name
+            document.getElementById("player_name").value ="{{ player_name }}"
+        {% endif %}
+        
+        {% if avatar %}
+        //avatar is set. "click" correct avatar
+        switch (parseInt({{ avatar }})) {
+            case 0:
+                $("#avatar0").click();
+                break;
+            case 1:
+                 $("#avatar1").click();
+                break;
+            case 2:
+                $("#avatar2").click();
+                break;
+            case 3:
+                $("#avatar3").click();
+                break;
+        }
+
+        {% endif %}
+        document.getElementById("boardsize").addEventListener("change", function() {
+            let choice = $( "#boardsize option:selected" ).text();
+            $("#boardsizeinput").val(choice.substr(0,1));
+        });
+
+        document.getElementById("wordsperside").addEventListener("change", function() {
+            let choice = $( "#wordsperside option:selected" ).text();
+            $("#wordspersideinput").val(choice);
+        });
+    });
+      
+         
+         
+         
+         
+    
+         
+         
+    </script>
+    
+    
+    <style>
+        html {
+            position: relative;
+            min-height: 100%
+        }
+        .row{
+            margin: 1%;
+        }
+
+        body{
+            margin-bottom:60px;
+        }
+        .footer{
+            position: absolute;
+            bottom:0;
+            height:60px;
+            width:100%;
+            
+        }
+        /* Logo and images sizing */
+        .input-hidden{
+            display: none;
+            opacity: 0;
+        }
+        #Logo{
+            margin-top: 20px;
+            height:193px;
+            width:320px;
+            
+        }
+        #Logo img{
+            width:100%;
+            height: 100%;
+        }
+         /* Logo size changes when the screen is at 767 px */
+        @media (max-width: 767.98px) { 
+            #Logo{
+                height: 154px;
+                width: 256px;
+                margin-top: 10px;
+                
+            }
+        
+        
+        }
+        /* Formatting for the avatar images with hover and black and white */
+        .avatar-img{
+            
+            width: 125px;
+            height: 125px;
+            float:left;
+            margin-right:5px;
+            margin-top:5px;
+            
+            
+        }
+        .avatar-img img{
+            transition: transform .2s;
+            cursor: pointer;
+        }
+        .avatar-img img:hover{
+            transform: scale(1.05);
+        }
+        .avatar-bw{
+            
+            filter: brightness(0);
+            opacity: .5;
+        }
+        
+        
+        /* Button sizing */
+        .btn{
+            
+            height: 55px;
+	        width: 275px;
+            font-size: 16px;
+            
+        }
+        /* Settings pop up buttons */
+        #settingsbtn{
+            width:50px;
+            height: 50px;
+            background-color:#ffbf00;
+            float:right;
+        }
+        
+        #modalclose{
+            width: 75px;
+            height: 40px;
+            
+        }
+        
+        /* Button sizing and display */
+        .hidden{
+            visibility: hidden;
+            height:0px;
+            
+        }
+        
+        /* Formatting for the join game button and on hover */
+        #joinGame-bttn{
+            background-color: #39a87f; /* Green */
+            color:white;
+        }
+        #joinGame-bttn:hover{
+            background-color:   #349873;
+        }
+        /* Formatting for the create game button and on hover */
+        #createGame-bttn{
+            background-color: #66c7f4;
+            color: white;
+        }
+        #createGame-bttn:hover{
+            background-color:  	 #58c2f3;
+        }
+        
+       
+        
+        
+        
+    </style>
+   
+    <title>Play DumbFounded!</title>
+    <link rel="shortcut icon" href="{%static "Images/DFFavIcon.png" %}" />
+</head>
+    
+<body>
+    {% if error_messages %}
+    {% for error_message in error_messages %}
+    <div class="alert alert-danger" role="alert">
+    {{ error_message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <form action="{% url 'game:gameroom' %}" method="post" id = "makejoin">
+    {% csrf_token %}
+        
+     <!-- Settings popup to allow the user to adjust the board size and words per side--->
+    <div class="modal settings" tabindex="-1" role="dialog" id = "settingsmodal">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Settings</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class = "container">
+            <div class = "row">
+                <div class = "col-md-4">
+                    <h5>Board Size (N*N)</h5>
+                    <div class = "input-group" >
+                        <select id = "boardsize" class="form-control form-control-sm ">
+                            <option>5*5</option>
+                            <option>6*6</option>
+                            <option>7*7</option>
+                        </select>
+                    </div>
+                   
+                    
+                    
+                </div>
+                
+
+                   
+                         
+              
+                </div>
+            <div class = "row">
+                 <div class = "col-md-4">
+                    <h5>Words per side</h5>
+                    <div class = "input-group" id = "boardsize">
+                        <select id = "wordsperside" class="form-control form-control-sm ">
+                            <option selected>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option selected>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                        </select>
+                    </div>
+                   
+                    
+                    
+                </div>
+            </div>     
+                
+            
+            </div>
+   
+          
+          
+          </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id = "modalclose">Close</button>
+      </div>
+    </div>
+  </div>
+</div>    
+        
+        
+        
+    <!--- DumbFounded Logo --->
+    <div class = "container">
+        <div class = "row justify-content-center">
+            <img src="{%static "Images/dumbfoundedlogo.png" %}" class = "img-fluid" id = "Logo" alt="Logo">
+            
+        </div>
+    </div>
+   
+    
+    
+    
+    <!--- Avatar Images and Radio Buttons --->
+    <div class ='container'>
+        <div class ="row justify-content-center">
+                <input type="radio" id ="avatar0" class="input-hidden" name = "avatar" autocomplete="off" name ="avatarradios" value = "0"/>
+                <label for="avatar0">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/codeyColor.png" %}" class = "img-fluid" id = "avatar0pic" alt="Cody" >
+                    </div>
+                </label>
+                <input type="radio" id ="avatar1" class="input-hidden" name = "avatar" autocomplete="off" name ="avatarradios" value = "1"/>
+                <label for="avatar1">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/franColor.png" %}" class = "img-fluid" id = "avatar1pic" alt="Fran">
+                    </div>
+                </label>
+            <!--- Breaks images into a 2x2 square when screen is small --->
+            <div class="w-100 d-md-none"></div>
+            
+                <input type="radio" id ="avatar2" class="input-hidden" name = "avatar" autocomplete="off" name ="avatarradios" value = "2"/>
+                <label for="avatar2">
+                    <div class ="avatar-img avatar-bw">
+                        <img src="{%static "Images/robertColor.png" %}" class = "img-fluid" id = "avatar2pic" alt="ROBErt">
+                    </div>
+                     
+                </label>
+                <input type="radio" id ="avatar3" class="input-hidden" name = "avatar" autocomplete="off" name ="avatarradios" value = "3"/>
+                <label for="avatar3">
+                    <div class ="avatar-img avatar-bw" >
+                        <img src="{%static "Images/oscarColor.png" %}" class = "img-fluid" id = "avatar3" alt="Oscar">
+                    </div>
+                     
+                </label>
+            
+            
+            </div>
+           
+    </div>
+        
+    <!--- Inputs and Buttons --->
+    <div class = "container">
+        <!--- Displays an input that allows the user to type in their name for the game--->
+        <div class = "row justify-content-center">
+            <div class="form-group">
+                <input type="text" class = "form-control" placeholder="Player Name" id="player_name" name="player_name" maxlength= '15'/>
+            </div>
+            
+        </div>
+        <!--- Displays the Join Game Input to allow users to type in their game code  --->
+        <div class = "gamepin-txt hidden">
+        <div class = "row justify-content-center">
+            <div class="form-group">
+                <input type="text" class = "form-control " placeholder="Game Pin" id= "gamepintxt" name="gamepintxt" onkeyup="this.value = this.value.toUpperCase();" value = "{{ gamepintxt }}"/>
+            </div>
+        </div>
+        </div>
+        
+        
+        <!--- Displays the Create Game Button with the use of Bootstrap --->
+        <div class = "row justify-content-center" id = "creatediv">
+            <button type="submit" id = "createGame-bttn" class="btn">Create Game</button>
+        </div>
+        <!--- Displays the Join Game Button with the use of Bootstrap --->    
+        <div class = "row justify-content-center" id = "joindiv">
+            <button type="button" id = "joinGame-bttn" class="btn">Join Game</button>
+        </div>
+        <!--- Displays the Settings Button and activates it when clicked--->
+        <div class = "row justify-content-center">
+
+                <button type="button" class="btn btn-sm" id ="settingsbtn" data-toggle = "modal" data-target="#settingsmodal">
+                <span class="glyphicon glyphicon-cog"></span>
+                </button>
+            
+            </div>
+                
+            
+        <!--- Hidden django inputs --->
+        
+        <input type="hidden" id="mode" name="mode" value="make"/>
+        <input type="hidden" id="boardsizeinput" name="boardsize" value="5"/>
+        <input type="hidden" id="wordspersideinput" name="wordsperside" value="8"/>
+    </div>  
+        
+    
+    </form>    
+        
+        
+        
+    
+    <!-- Customizable footer -->
+    <footer class="footer">
+        <div class = "container">
+            <div class = "row justify-content-center">
+                 <p class="text-muted">Copyright US</p>
+            </div>
+           
+        
+        </div>
+    
+        
+    </footer>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</body>
+</html>
